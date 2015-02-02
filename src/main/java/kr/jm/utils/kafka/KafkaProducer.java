@@ -60,7 +60,7 @@ public class KafkaProducer {
 	}
 
 	public void close() {
-		producer.close();		
+		producer.close();
 	}
 
 }
