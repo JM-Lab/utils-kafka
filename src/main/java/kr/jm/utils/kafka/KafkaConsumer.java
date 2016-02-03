@@ -7,12 +7,14 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import kafka.consumer.ConsumerConfig;
+import kafka.consumer.ConsumerIterator;
 import kafka.consumer.KafkaStream;
 import kafka.javaapi.consumer.ConsumerConnector;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 public class KafkaConsumer {
+
+	private static final org.slf4j.Logger log =
+			org.slf4j.LoggerFactory.getLogger(KafkaConsumer.class);
 
 	private static final String KAFKA_CONSUMING_WORKER =
 			"-kafkaConsumingWorker-";
@@ -25,11 +27,11 @@ public class KafkaConsumer {
 
 	private ExecutorService kafkaConsumingThreadPool;
 
-	private KafkaStreamWorkInterface kafkaStreamWork;
+	private KafkaStreamConsumerInterface kafkaStreamWork;
 
 	public KafkaConsumer(Properties kafkaConsumerProperties,
 			Map<String, Integer> topicInfo,
-			KafkaStreamWorkInterface kafkaStreamWork) {
+			KafkaStreamConsumerInterface kafkaStreamWork) {
 		this.consumerConfig = new ConsumerConfig(kafkaConsumerProperties);
 		this.topicInfo = topicInfo;
 		setKafkaStreamWork(kafkaStreamWork);
@@ -42,7 +44,6 @@ public class KafkaConsumer {
 				kafkaConsumerConnector.createMessageStreams(topicInfo);
 		kafkaConsumingThreadPool =
 				Executors.newFixedThreadPool(messageStreams.size());
-
 		for (String topic : topicInfo.keySet()) {
 			List<KafkaStream<byte[], byte[]>> kafkaStreamList =
 					messageStreams.get(topic);
@@ -59,6 +60,12 @@ public class KafkaConsumer {
 		}
 	}
 
+	public void startAsDeamon() throws Exception {
+		start();
+		while (!kafkaConsumingThreadPool.isTerminated())
+			Thread.sleep(10000);
+	}
+
 	public boolean isRunning() {
 		return !kafkaConsumingThreadPool.isTerminated();
 	}
@@ -72,7 +79,8 @@ public class KafkaConsumer {
 		}
 	}
 
-	public void setKafkaStreamWork(KafkaStreamWorkInterface kafkaStreamWork) {
+	public void
+			setKafkaStreamWork(KafkaStreamConsumerInterface kafkaStreamWork) {
 		this.kafkaStreamWork = kafkaStreamWork;
 	}
 
@@ -95,8 +103,23 @@ public class KafkaConsumer {
 		public void run() {
 			try {
 				Thread.currentThread().setName(threadName);
-				kafkaStreamWork.consumingKafkaStream(topic, streamNum,
-						kafkaStream);
+				ConsumerIterator<byte[], byte[]> consumerIterator =
+						kafkaStream.iterator();
+				while (consumerIterator.hasNext()) {
+					byte[] message = consumerIterator.next().message();
+					log.debug(
+							"consuming topic = {}, streamNum = {}, messageBytes = {}",
+							topic, streamNum, message.length);
+					try {
+						kafkaStreamWork.consume(message);
+					} catch (Exception e) {
+						log.error(
+								"Exception Occur !!! - consuming topic = "
+										+ topic + ", streamNum = " + streamNum
+										+ ", messageBytes = " + message.length,
+								e);
+					}
+				}
 			} catch (Exception e) {
 				log.error("[" + threadName + "] Exception Occur!!!", e);
 			} finally {
