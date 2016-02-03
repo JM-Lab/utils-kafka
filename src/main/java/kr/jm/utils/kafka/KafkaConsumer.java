@@ -14,7 +14,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class KafkaConsumer {
 
-	private static final String KAFKA_CONSUMING_WORKER = "-kafkaConsumingWorker-";
+	private static final String KAFKA_CONSUMING_WORKER =
+			"-kafkaConsumingWorker-";
 
 	private ConsumerConfig consumerConfig;
 
@@ -37,21 +38,21 @@ public class KafkaConsumer {
 	public void start() throws Exception {
 		this.kafkaConsumerConnector = kafka.consumer.Consumer
 				.createJavaConsumerConnector(consumerConfig);
-		Map<String, List<KafkaStream<byte[], byte[]>>> messageStreams = kafkaConsumerConnector
-				.createMessageStreams(topicInfo);
-		kafkaConsumingThreadPool = Executors.newFixedThreadPool(messageStreams
-				.size());
+		Map<String, List<KafkaStream<byte[], byte[]>>> messageStreams =
+				kafkaConsumerConnector.createMessageStreams(topicInfo);
+		kafkaConsumingThreadPool =
+				Executors.newFixedThreadPool(messageStreams.size());
 
 		for (String topic : topicInfo.keySet()) {
-			List<KafkaStream<byte[], byte[]>> kafkaStreamList = messageStreams
-					.get(topic);
+			List<KafkaStream<byte[], byte[]>> kafkaStreamList =
+					messageStreams.get(topic);
 			log.info(
 					"KafkaConsumer For {} Topic Start !!! - Kafka Stream Count = {}",
 					topic, kafkaStreamList.size());
 			int streamNum = 0;
 			for (KafkaStream<byte[], byte[]> kafkaStream : kafkaStreamList) {
-				kafkaConsumingThreadPool.submit(new ConsumingWorker(topic,
-						++streamNum, kafkaStream));
+				kafkaConsumingThreadPool.submit(
+						new ConsumingWorker(topic, ++streamNum, kafkaStream));
 				log.info("{}" + KAFKA_CONSUMING_WORKER + "{} Running !!!",
 						topic, streamNum);
 			}
@@ -80,21 +81,28 @@ public class KafkaConsumer {
 		private String topic;
 		private int streamNum;
 		private KafkaStream<byte[], byte[]> kafkaStream;
+		private String threadName;
 
 		public ConsumingWorker(String topic, int numOfThreadForKafka,
 				KafkaStream<byte[], byte[]> kafkaStream) {
 			this.topic = topic;
 			this.streamNum = numOfThreadForKafka;
 			this.kafkaStream = kafkaStream;
+			this.threadName = topic + KAFKA_CONSUMING_WORKER + streamNum;
 		}
 
 		@Override
 		public void run() {
-			Thread.currentThread().setName(
-					topic + KAFKA_CONSUMING_WORKER + streamNum);
-			kafkaStreamWork.consumingKafkaStream(topic, streamNum, kafkaStream);
-			log.error("[{}" + KAFKA_CONSUMING_WORKER + "{}] stopped!!!", topic,
-					streamNum);
+			try {
+				Thread.currentThread().setName(threadName);
+				kafkaStreamWork.consumingKafkaStream(topic, streamNum,
+						kafkaStream);
+			} catch (Exception e) {
+				log.error("[" + threadName + "] Exception Occur!!!", e);
+			} finally {
+				log.error("[" + threadName + "] stopped!!!");
+			}
+
 		}
 
 	}

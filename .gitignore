@@ -1,3 +1,5 @@
+*.filters
+*.iml
 /target/
 /.settings/
 /.classpath
