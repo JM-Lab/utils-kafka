@@ -10,6 +10,8 @@ import kafka.consumer.ConsumerConfig;
 import kafka.consumer.ConsumerIterator;
 import kafka.consumer.KafkaStream;
 import kafka.javaapi.consumer.ConsumerConnector;
+import kr.jm.utils.exception.JMExceptionManager;
+import kr.jm.utils.helper.JMThread;
 
 public class KafkaConsumer {
 
@@ -52,8 +54,9 @@ public class KafkaConsumer {
 					topic, kafkaStreamList.size());
 			int streamNum = 0;
 			for (KafkaStream<byte[], byte[]> kafkaStream : kafkaStreamList) {
-				kafkaConsumingThreadPool.submit(
-						new ConsumingWorker(topic, ++streamNum, kafkaStream));
+				JMThread.runAsync(
+						new ConsumingWorker(topic, ++streamNum, kafkaStream),
+						kafkaConsumingThreadPool);
 				log.info("{}" + KAFKA_CONSUMING_WORKER + "{} Running !!!",
 						topic, streamNum);
 			}
@@ -101,31 +104,22 @@ public class KafkaConsumer {
 
 		@Override
 		public void run() {
-			try {
-				Thread.currentThread().setName(threadName);
-				ConsumerIterator<byte[], byte[]> consumerIterator =
-						kafkaStream.iterator();
-				while (consumerIterator.hasNext()) {
-					byte[] message = consumerIterator.next().message();
-					log.debug(
-							"consuming topic = {}, streamNum = {}, messageBytes = {}",
-							topic, streamNum, message.length);
-					try {
-						kafkaStreamWork.consume(message);
-					} catch (Exception e) {
-						log.error(
-								"Exception Occur !!! - consuming topic = "
-										+ topic + ", streamNum = " + streamNum
-										+ ", messageBytes = " + message.length,
-								e);
-					}
+			Thread.currentThread().setName(threadName);
+			ConsumerIterator<byte[], byte[]> consumerIterator =
+					kafkaStream.iterator();
+			while (consumerIterator.hasNext()) {
+				byte[] message = consumerIterator.next().message();
+				log.debug(
+						"consuming topic = {}, streamNum = {}, messageBytes = {}",
+						topic, streamNum, message.length);
+				try {
+					kafkaStreamWork.consume(message);
+				} catch (Exception e) {
+					JMExceptionManager.logException(log, e,
+							"ConsumingWorker.run", topic, streamNum,
+							message.length);
 				}
-			} catch (Exception e) {
-				log.error("[" + threadName + "] Exception Occur!!!", e);
-			} finally {
-				log.error("[" + threadName + "] stopped!!!");
 			}
-
 		}
 
 	}

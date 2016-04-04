@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>jmlab</groupId>
 	<artifactId>jmlab-utils-kafka</artifactId>
-	<version>0.1.0</version>
+	<version>0.1.1-SNAPSHOT</version>
 	<name>jmlab-utils-kafka</name>
 	<build>
 		<plugins>
@@ -11,8 +11,8 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.1</version>
 				<configuration>
-					<source>1.7</source>
-					<target>1.7</target>
+					<source>1.8</source>
+					<target>1.8</target>
 				</configuration>
 			</plugin>
 		</plugins>
@@ -63,6 +63,10 @@
 			<version>4.10</version>
 			<scope>test</scope>
 		</dependency>
-
+		<dependency>
+			<groupId>kr.jmlab</groupId>
+			<artifactId>jmlab-utils-java8</artifactId>
+			<version>0.1.8</version>
+		</dependency>
 	</dependencies>
 </project>
