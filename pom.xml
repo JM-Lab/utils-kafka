@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>jmlab</groupId>
 	<artifactId>jmlab-utils-kafka</artifactId>
-	<version>0.1.1-SNAPSHOT</version>
+	<version>0.1.1</version>
 	<name>jmlab-utils-kafka</name>
 	<build>
 		<plugins>
