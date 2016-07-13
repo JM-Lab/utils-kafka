@@ -76,9 +76,10 @@ public class KafkaConsumer {
 	public void stop() throws RuntimeException {
 		if (kafkaConsumerConnector != null)
 			kafkaConsumerConnector.shutdown();
-		if (kafkaConsumingThreadPool != null)
+		if (kafkaConsumingThreadPool != null) {
 			kafkaConsumingThreadPool.shutdown();
-		while (!kafkaConsumingThreadPool.isTerminated()) {
+			while (!kafkaConsumingThreadPool.isTerminated()) {
+			}
 		}
 	}
 
