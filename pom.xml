@@ -1,10 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.github.jm-lab</groupId>
 	<artifactId>jmlab-utils-kafka</artifactId>
 	<version>0.10.0</version>
-	<name>jmlab-utils-kafka</name>
+	<name>JMLab-Utils-Kafka</name>
+	<description>JMLab Utility Libraries For Kafka</description>
+	<url>https://github.com/JM-Lab/utils-kafka</url>
+	<licenses>
+		<license>
+			<name>The Apache License, Version 2.0</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+		</license>
+	</licenses>
+	<developers>
+		<developer>
+			<name>Jemin Huh</name>
+			<email>hjm1980@gmail.com</email>
+			<organization>JMLab</organization>
+			<organizationUrl>https://github.com/jm-lab</organizationUrl>
+		</developer>
+	</developers>
+	<scm>
+		<connection>scm:git:git@github.com:JM-Lab/utils-kafka.git</connection>
+		<developerConnection>scm:git:git@github.com:JM-Lab/utils-kafka.git</developerConnection>
+		<url>git@github.com:JM-Lab/utils-kafka.git</url>
+	</scm>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<junit.version>4.10</junit.version>
+	</properties>
+
+	<distributionManagement>
+		<snapshotRepository>
+			<id>ossrh</id>
+			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
+		</snapshotRepository>
+		<repository>
+			<id>ossrh</id>
+			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+		</repository>
+	</distributionManagement>
 	<build>
 		<plugins>
 			<plugin>
@@ -13,6 +51,59 @@
 				<configuration>
 					<source>1.8</source>
 					<target>1.8</target>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<version>2.2.1</version>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<goals>
+							<goal>jar-no-fork</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>2.9.1</version>
+				<configuration>
+					<javadocExecutable>${java.home}/../bin/javadoc</javadocExecutable>
+				</configuration>
+				<executions>
+					<execution>
+						<id>attach-javadocs</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-gpg-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>sign-artifacts</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>sign</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.sonatype.plugins</groupId>
+				<artifactId>nexus-staging-maven-plugin</artifactId>
+				<version>1.6.3</version>
+				<extensions>true</extensions>
+				<configuration>
+					<serverId>ossrh</serverId>
+					<nexusUrl>https://oss.sonatype.org/</nexusUrl>
+					<autoReleaseAfterClose>true</autoReleaseAfterClose>
 				</configuration>
 			</plugin>
 		</plugins>
@@ -30,6 +121,11 @@
 			</exclusions>
 		</dependency>
 		<dependency>
+			<groupId>org.apache.kafka</groupId>
+			<artifactId>kafka-streams</artifactId>
+			<version>0.10.1.0</version>
+		</dependency>
+		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
 			<version>2.7.1</version>
@@ -37,7 +133,7 @@
 		<dependency>
 			<groupId>kr.jmlab</groupId>
 			<artifactId>jmlab-utils-java8</artifactId>
-			<version>0.1.84-SNAPSHOT</version>
+			<version>0.1.84</version>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>

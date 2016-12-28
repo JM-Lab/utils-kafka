@@ -10,31 +10,81 @@ import kr.jm.utils.helper.JMLog;
 import kr.jm.utils.helper.JMString;
 import kr.jm.utils.helper.JMThread;
 
+/**
+ * The Class JMKafkaBroker.
+ */
 public class JMKafkaBroker extends KafkaServerStartable {
 	private static final org.slf4j.Logger log =
 			org.slf4j.LoggerFactory.getLogger(JMKafkaBroker.class);
 	private ExecutorService kafkaBrokerThreadPool;
 	private int port;
 
-	protected JMKafkaBroker(Properties properties) {
+	/**
+	 * Instantiates a new JM kafka broker.
+	 *
+	 * @param properties
+	 *            the properties
+	 */
+	public JMKafkaBroker(Properties properties) {
 		super(new KafkaConfig(properties));
 		this.kafkaBrokerThreadPool = JMThread.newSingleThreadPool();
 	}
 
+	/**
+	 * Instantiates a new JM kafka broker.
+	 *
+	 * @param zookeeperConnect
+	 *            the zookeeper connect
+	 */
 	public JMKafkaBroker(String zookeeperConnect) {
 		this(zookeeperConnect, OS.getHostname(), OS.getAvailableLocalPort());
 	}
 
+	/**
+	 * Instantiates a new JM kafka broker.
+	 *
+	 * @param zookeeperConnect
+	 *            the zookeeper connect
+	 * @param hostname
+	 *            the hostname
+	 * @param port
+	 *            the port
+	 */
 	public JMKafkaBroker(String zookeeperConnect, String hostname, int port) {
 		this(zookeeperConnect, hostname, port, "kafka-broker-log");
 	}
 
+	/**
+	 * Instantiates a new JM kafka broker.
+	 *
+	 * @param zookeeperConnect
+	 *            the zookeeper connect
+	 * @param hostname
+	 *            the hostname
+	 * @param port
+	 *            the port
+	 * @param logDir
+	 *            the log dir
+	 */
 	public JMKafkaBroker(String zookeeperConnect, String hostname, int port,
 			String logDir) {
 		this(buildProperties(zookeeperConnect, hostname, port, logDir));
 		this.port = port;
 	}
 
+	/**
+	 * Builds the properties.
+	 *
+	 * @param zookeeperConnect
+	 *            the zookeeper connect
+	 * @param hostname
+	 *            the hostname
+	 * @param port
+	 *            the port
+	 * @param logDir
+	 *            the log dir
+	 * @return the properties
+	 */
 	public static Properties buildProperties(String zookeeperConnect,
 			String hostname, int port, String logDir) {
 		Properties properties = new Properties();
@@ -46,6 +96,11 @@ public class JMKafkaBroker extends KafkaServerStartable {
 		return properties;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see kafka.server.KafkaServerStartable#startup()
+	 */
 	@Override
 	public void startup() {
 		JMThread.runAsync(() -> {
@@ -55,6 +110,19 @@ public class JMKafkaBroker extends KafkaServerStartable {
 		}, kafkaBrokerThreadPool);
 	}
 
+	/**
+	 * Start.
+	 *
+	 * @return the JM kafka broker
+	 */
+	public JMKafkaBroker start() {
+		startup();
+		return this;
+	}
+
+	/**
+	 * Stop.
+	 */
 	public void stop() {
 		log.info("shutdown starting ms - " + System.currentTimeMillis());
 		kafkaBrokerThreadPool.shutdown();

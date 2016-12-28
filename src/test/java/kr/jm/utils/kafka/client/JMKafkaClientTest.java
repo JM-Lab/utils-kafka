@@ -1,4 +1,4 @@
-package kr.jm.utils.kafka;
+package kr.jm.utils.kafka.client;
 
 import static java.util.stream.Collectors.toList;
 import static org.junit.Assert.assertEquals;
@@ -18,9 +18,13 @@ import kr.jm.utils.helper.JMPathOperation;
 import kr.jm.utils.helper.JMStream;
 import kr.jm.utils.helper.JMString;
 import kr.jm.utils.helper.JMThread;
+import kr.jm.utils.kafka.JMKafkaBroker;
 import kr.jm.utils.zookeeper.JMZookeeperServer;
 
-public class JMKafkaTest {
+/**
+ * The Class JMKafkaClientTest.
+ */
+public class JMKafkaClientTest {
 
 	private String groupId = "test";
 	private String topic = "testLocal";
@@ -31,6 +35,11 @@ public class JMKafkaTest {
 	private JMKafkaConsumer kafkaConsumer;
 	private String bootstrapServer;
 
+	/**
+	 * Sets the up.
+	 *
+	 * @throws Exception the exception
+	 */
 	@Before
 	public void setUp() throws Exception {
 		this.zooKeeper = new JMZookeeperServer();
@@ -47,31 +56,37 @@ public class JMKafkaTest {
 				JMStream.numberRangeClosed(1, 500, 1).boxed().collect(toList());
 		kafkaProducer.sendJsonStringList("number", numList);
 		kafkaProducer.sendSync(topic, lastValue);
-		OS.addShutdownHook(() -> JMPathOperation
-				.deleteDir(JMPath.getPath("zookeeper-dir")));
-		OS.addShutdownHook(() -> JMPathOperation
-				.deleteDir(JMPath.getPath("kafka-broker-log")));
 	}
 
+	/**
+	 * Tear down.
+	 */
 	@After
 	public void tearDown() {
 		kafkaProducer.close();
 		kafkaConsumer.close();
 		kafkaBroker.stop();
 		zooKeeper.stop();
+		JMPathOperation.deleteDir(JMPath.getPath("zookeeper-dir"));
+		JMPathOperation.deleteDir(JMPath.getPath("kafka-broker-log"));
 	}
 
+	/**
+	 * Test start.
+	 *
+	 * @throws Exception the exception
+	 */
 	@Test
 	public final void testStart() throws Exception {
 		LongAdder indexAdder = new LongAdder();
 		AutoStringBuilder resultString = new AutoStringBuilder(",");
-		this.kafkaConsumer = new JMKafkaConsumer(bootstrapServer, false,
+		this.kafkaConsumer = new JMKafkaConsumer(false, bootstrapServer,
 				groupId, consumerRecords -> {
 					indexAdder.add(consumerRecords.count());
 					consumerRecords
 							.forEach(cr -> resultString.append(cr.value()));
 				}, topic);
-		this.kafkaConsumer.run();
+		this.kafkaConsumer.start();
 		JMThread.sleep(2000);
 		assertEquals(501, indexAdder.intValue());
 		String[] split = resultString.autoToString().split(",");
