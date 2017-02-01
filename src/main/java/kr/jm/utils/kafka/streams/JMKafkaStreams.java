@@ -1,6 +1,5 @@
 package kr.jm.utils.kafka.streams;
 
-import java.util.Optional;
 import java.util.Properties;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -100,8 +99,7 @@ public class JMKafkaStreams extends KafkaStreams {
 		properties.put(StreamsConfig.ZOOKEEPER_CONNECT_CONFIG,
 				zookeeperConnect);
 		properties.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG,
-				Optional.ofNullable(isLatest)
-						.map(b -> b ? "latest" : "earliest").orElse("none"));
+				isLatest != null && isLatest ? "latest" : "earliest");
 		properties.put(StreamsConfig.KEY_SERDE_CLASS_CONFIG,
 				Serdes.String().getClass().getName());
 		properties.put(StreamsConfig.VALUE_SERDE_CLASS_CONFIG,
@@ -111,7 +109,7 @@ public class JMKafkaStreams extends KafkaStreams {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.apache.kafka.streams.KafkaStreams#start()
 	 */
 	@Override
@@ -122,7 +120,7 @@ public class JMKafkaStreams extends KafkaStreams {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.apache.kafka.streams.KafkaStreams#close()
 	 */
 	@Override

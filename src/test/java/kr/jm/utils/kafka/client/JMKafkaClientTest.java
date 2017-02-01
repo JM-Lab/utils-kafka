@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.LongAdder;
 
 import org.junit.After;
@@ -38,10 +39,15 @@ public class JMKafkaClientTest {
 	/**
 	 * Sets the up.
 	 *
-	 * @throws Exception the exception
+	 * @throws Exception
+	 *             the exception
 	 */
 	@Before
 	public void setUp() throws Exception {
+		Optional.of(JMPath.getPath("zookeeper-dir")).filter(JMPath::exists)
+				.ifPresent(JMPathOperation::deleteDir);
+		Optional.of(JMPath.getPath("kafka-broker-log")).filter(JMPath::exists)
+				.ifPresent(JMPathOperation::deleteDir);
 		this.zooKeeper = new JMZookeeperServer();
 		this.zooKeeper.start();
 		JMThread.sleep(5000);
@@ -67,14 +73,17 @@ public class JMKafkaClientTest {
 		kafkaConsumer.close();
 		kafkaBroker.stop();
 		zooKeeper.stop();
-		JMPathOperation.deleteDir(JMPath.getPath("zookeeper-dir"));
-		JMPathOperation.deleteDir(JMPath.getPath("kafka-broker-log"));
+		Optional.of(JMPath.getPath("zookeeper-dir")).filter(JMPath::exists)
+				.ifPresent(JMPathOperation::deleteDir);
+		Optional.of(JMPath.getPath("kafka-broker-log")).filter(JMPath::exists)
+				.ifPresent(JMPathOperation::deleteDir);
 	}
 
 	/**
 	 * Test start.
 	 *
-	 * @throws Exception the exception
+	 * @throws Exception
+	 *             the exception
 	 */
 	@Test
 	public final void testStart() throws Exception {

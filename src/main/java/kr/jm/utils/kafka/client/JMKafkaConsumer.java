@@ -216,15 +216,15 @@ public class JMKafkaConsumer extends KafkaConsumer<String, String> {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.apache.kafka.clients.consumer.KafkaConsumer#close()
 	 */
 	@Override
 	public void close() {
 		kafkaConsumerThreadPool.shutdown();
-		isRunning.set(false);
 		wakeup();
 		while (!kafkaConsumerThreadPool.isTerminated());
+		isRunning.set(false);
 	}
 
 	public int getPollIntervalMs() {

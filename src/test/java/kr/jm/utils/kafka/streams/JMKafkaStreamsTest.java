@@ -6,6 +6,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import org.junit.After;
 import org.junit.Before;
@@ -35,17 +36,29 @@ public class JMKafkaStreamsTest {
 	private String bootstrapServer;
 	private String zookeeperConnect;
 
-	private String applicationId =
-			"testKafkaStream" + System.currentTimeMillis();
+	private String applicationId = "testKafkaStream";
 	private JMKafkaStreams jmKafkaStreams;
+
+	public JMKafkaStreamsTest() {
+		Optional.of(JMPath.getPath("zookeeper-dir")).filter(JMPath::exists)
+				.ifPresent(JMPathOperation::deleteDir);
+		Optional.of(JMPath.getPath("kafka-broker-log")).filter(JMPath::exists)
+				.ifPresent(JMPathOperation::deleteDir);
+		JMThread.sleep(1000);
+	}
 
 	/**
 	 * Sets the up.
 	 *
-	 * @throws Exception the exception
+	 * @throws Exception
+	 *             the exception
 	 */
 	@Before
 	public void setUp() throws Exception {
+		Optional.of(JMPath.getPath("zookeeper-dir")).filter(JMPath::exists)
+				.ifPresent(JMPathOperation::deleteDir);
+		Optional.of(JMPath.getPath("kafka-broker-log")).filter(JMPath::exists)
+				.ifPresent(JMPathOperation::deleteDir);
 		this.zooKeeper = new JMZookeeperServer().start();
 		JMThread.sleep(5000);
 		zookeeperConnect = JMString.buildIpOrHostnamePortPair(OS.getHostname(),
@@ -61,7 +74,8 @@ public class JMKafkaStreamsTest {
 	/**
 	 * Tear down.
 	 *
-	 * @throws Exception the exception
+	 * @throws Exception
+	 *             the exception
 	 */
 	@After
 	public void tearDown() throws Exception {
@@ -69,19 +83,20 @@ public class JMKafkaStreamsTest {
 		jmKafkaStreams.close();
 		kafkaBroker.stop();
 		zooKeeper.stop();
-		JMPathOperation.deleteDir(JMPath.getPath("zookeeper-dir"));
-		JMPathOperation.deleteDir(JMPath.getPath("kafka-broker-log"));
+		Optional.of(JMPath.getPath("zookeeper-dir")).filter(JMPath::exists)
+				.ifPresent(JMPathOperation::deleteDir);
+		Optional.of(JMPath.getPath("kafka-broker-log")).filter(JMPath::exists)
+				.ifPresent(JMPathOperation::deleteDir);
 	}
 
 	/**
 	 * Test JM kafka streams.
 	 *
-	 * @throws Exception the exception
+	 * @throws Exception
+	 *             the exception
 	 */
 	@Test
 	public void testJMKafkaStreams() throws Exception {
-		Map<Integer, String> testMap = JMStream.numberRangeClosed(1, 500, 1)
-				.boxed().collect(toMap(getSelf(), i -> "Stream-" + i));
 		JMKStreamBuilder jmkStreamBuilder = new JMKStreamBuilder();
 		Map<Integer, String> streamResultMap = new HashMap<>();
 		jmkStreamBuilder.stream(new TypeReference<Map<Integer, String>>() {
@@ -90,6 +105,8 @@ public class JMKafkaStreamsTest {
 				zookeeperConnect, jmkStreamBuilder);
 		jmKafkaStreams.start();
 		JMThread.sleep(1000);
+		Map<Integer, String> testMap = JMStream.numberRangeClosed(1, 500, 1)
+				.boxed().collect(toMap(getSelf(), i -> "Stream-" + i));
 		kafkaProducer.sendJsonStringSync(testMap);
 		JMThread.sleep(1000);
 		System.out.println(testMap);
