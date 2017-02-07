@@ -16,17 +16,23 @@ import kr.jm.utils.helper.JMThread;
 public class JMKafkaBroker extends KafkaServerStartable {
 	private static final org.slf4j.Logger log =
 			org.slf4j.LoggerFactory.getLogger(JMKafkaBroker.class);
+
+	private static final String BROKER_CONNECT = "brokerConnect";
+	private static final String HOSTNAME = "hostname";
+	private static final String PORT = "port";
+
 	private ExecutorService kafkaBrokerThreadPool;
-	private int port;
+	private Properties brokerProperties;
 
 	/**
 	 * Instantiates a new JM kafka broker.
 	 *
-	 * @param properties
+	 * @param brokerProperties
 	 *            the properties
 	 */
-	public JMKafkaBroker(Properties properties) {
-		super(new KafkaConfig(properties));
+	public JMKafkaBroker(Properties brokerProperties) {
+		super(new KafkaConfig(brokerProperties));
+		this.brokerProperties = brokerProperties;
 		this.kafkaBrokerThreadPool = JMThread.newSingleThreadPool();
 	}
 
@@ -69,7 +75,6 @@ public class JMKafkaBroker extends KafkaServerStartable {
 	public JMKafkaBroker(String zookeeperConnect, String hostname, int port,
 			String logDir) {
 		this(buildProperties(zookeeperConnect, hostname, port, logDir));
-		this.port = port;
 	}
 
 	/**
@@ -89,16 +94,21 @@ public class JMKafkaBroker extends KafkaServerStartable {
 			String hostname, int port, String logDir) {
 		Properties properties = new Properties();
 		properties.put("zookeeper.connect", zookeeperConnect);
-		properties.put("listeners", "PLAINTEXT://"
-				+ JMString.buildIpOrHostnamePortPair(hostname, port));
+		String brokerConnect =
+				JMString.buildIpOrHostnamePortPair(hostname, port);
+		properties.put("listeners", "PLAINTEXT://" + brokerConnect);
 		properties.put("brokerid", hostname + "-" + System.currentTimeMillis());
 		properties.put("log.dir", logDir);
+
+		properties.put(HOSTNAME, hostname);
+		properties.put(PORT, port);
+		properties.put(BROKER_CONNECT, brokerConnect);
 		return properties;
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see kafka.server.KafkaServerStartable#startup()
 	 */
 	@Override
@@ -131,7 +141,15 @@ public class JMKafkaBroker extends KafkaServerStartable {
 	}
 
 	public int getPort() {
-		return port;
+		return Integer.valueOf(brokerProperties.get(PORT).toString());
+	}
+
+	public String getHostname() {
+		return brokerProperties.get(HOSTNAME).toString();
+	}
+
+	public String getBrokerConnect() {
+		return brokerProperties.get(BROKER_CONNECT).toString();
 	}
 
 }

@@ -167,7 +167,7 @@ public class JMKafkaConsumer extends KafkaConsumer<String, String> {
 	 * Start.
 	 */
 	public void start() {
-		JMLog.info(log, "start", groupId, getTopicList(), pollIntervalMs);
+		JMLog.info(log, "start", groupId, topics, pollIntervalMs);
 		JMThread.runAsync(this::consume, kafkaConsumerThreadPool);
 		isRunning.set(true);
 	}

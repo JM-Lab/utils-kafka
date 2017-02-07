@@ -60,13 +60,12 @@ public class JMKafkaStreamsTest {
 		Optional.of(JMPath.getPath("kafka-broker-log")).filter(JMPath::exists)
 				.ifPresent(JMPathOperation::deleteDir);
 		this.zooKeeper = new JMZookeeperServer().start();
-		JMThread.sleep(5000);
+		JMThread.sleep(3000);
 		zookeeperConnect = JMString.buildIpOrHostnamePortPair(OS.getHostname(),
 				zooKeeper.getClientPort());
 		this.kafkaBroker = new JMKafkaBroker(zookeeperConnect).start();
-		JMThread.sleep(5000);
-		bootstrapServer = JMString.buildIpOrHostnamePortPair(OS.getHostname(),
-				kafkaBroker.getPort());
+		JMThread.sleep(3000);
+		this.bootstrapServer = kafkaBroker.getBrokerConnect();
 		this.kafkaProducer = new JMKafkaProducer(bootstrapServer, topic);
 		JMThread.sleep(3000);
 	}

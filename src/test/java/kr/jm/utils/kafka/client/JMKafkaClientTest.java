@@ -50,13 +50,12 @@ public class JMKafkaClientTest {
 				.ifPresent(JMPathOperation::deleteDir);
 		this.zooKeeper = new JMZookeeperServer();
 		this.zooKeeper.start();
-		JMThread.sleep(5000);
+		JMThread.sleep(3000);
 		this.kafkaBroker = new JMKafkaBroker(JMString.buildIpOrHostnamePortPair(
 				OS.getHostname(), zooKeeper.getClientPort()));
 		this.kafkaBroker.startup();
-		JMThread.sleep(5000);
-		bootstrapServer = JMString.buildIpOrHostnamePortPair(OS.getHostname(),
-				kafkaBroker.getPort());
+		JMThread.sleep(3000);
+		this.bootstrapServer = kafkaBroker.getBrokerConnect();
 		this.kafkaProducer = new JMKafkaProducer(bootstrapServer, topic);
 		List<Integer> numList =
 				JMStream.numberRangeClosed(1, 500, 1).boxed().collect(toList());
