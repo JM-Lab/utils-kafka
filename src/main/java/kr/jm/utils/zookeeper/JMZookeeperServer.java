@@ -12,6 +12,7 @@ import kr.jm.utils.enums.OS;
 import kr.jm.utils.exception.JMExceptionManager;
 import kr.jm.utils.helper.JMLog;
 import kr.jm.utils.helper.JMPath;
+import kr.jm.utils.helper.JMString;
 
 /**
  * The Class JMZookeeperServer.
@@ -170,9 +171,7 @@ public class JMZookeeperServer extends ZooKeeperServer {
 	 * Stop.
 	 */
 	public void stop() {
-		serverFactory.closeAll();
 		serverFactory.shutdown();
-		shutdown();
 	}
 
 	public int getNumConnections() {
@@ -181,5 +180,9 @@ public class JMZookeeperServer extends ZooKeeperServer {
 
 	public void setNumConnections(int numConnections) {
 		this.numConnections = numConnections;
+	}
+
+	public String getZookeeperConnect() {
+		return JMString.buildIpOrHostnamePortPair(hostnameOrIp, port);
 	}
 }

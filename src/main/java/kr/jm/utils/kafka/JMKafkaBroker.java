@@ -2,10 +2,12 @@ package kr.jm.utils.kafka;
 
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import kafka.server.KafkaConfig;
 import kafka.server.KafkaServerStartable;
 import kr.jm.utils.enums.OS;
+import kr.jm.utils.exception.JMExceptionManager;
 import kr.jm.utils.helper.JMLog;
 import kr.jm.utils.helper.JMString;
 import kr.jm.utils.helper.JMThread;
@@ -135,8 +137,15 @@ public class JMKafkaBroker extends KafkaServerStartable {
 	 */
 	public void stop() {
 		log.info("shutdown starting ms - " + System.currentTimeMillis());
-		kafkaBrokerThreadPool.shutdown();
-		shutdown();
+		try {
+			kafkaBrokerThreadPool.shutdown();
+			kafkaBrokerThreadPool.awaitTermination(10, TimeUnit.SECONDS);
+		} catch (Exception e) {
+			JMExceptionManager.logException(log, e, "stop",
+					kafkaBrokerThreadPool.shutdownNow());
+		} finally {
+			shutdown();
+		}
 		log.info("shutdown completely ms - " + System.currentTimeMillis());
 	}
 
