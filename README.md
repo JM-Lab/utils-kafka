@@ -10,7 +10,7 @@ JMLab Utility Libraries For Kafka 0.10.x
 * ***JMKStreamBuilder***
 
 ## version
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.jm-lab/jmlab-utils-kafka/badge.svg)](http://search.maven.org/#artifactdetails%7Ccom.github.jm-lab%7Cjmlab-utils-kafka%7C0.10.0%7Cjar)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.jm-lab/jmlab-utils-kafka/badge.svg)](http://search.maven.org/#artifactdetails%7Ccom.github.jm-lab%7Cjmlab-utils-kafka%7C0.10.1%7Cjar)
 
 ## Prerequisites:
 * Java 8 or later
@@ -21,7 +21,7 @@ Checkout the source code:
 
     git clone https://github.com/JM-Lab/utils-kafka.git
     cd utils-kafka
-    git checkout -b 0.10.0 origin/0.10.0 
+    git checkout -b 0.10.1 origin/0.10.1 
     mvn install
 
 ## Usage
@@ -31,7 +31,7 @@ Set up pom.xml :
     <dependency>
 			<groupId>com.github.jm-lab</groupId>
 			<artifactId>jmlab-utils-kafka</artifactId>
-			<version>0.10.0</version>
+			<version>0.10.1</version>
 	</dependency>
     (...)
 
