@@ -183,7 +183,8 @@ public class JMKafkaConsumer extends KafkaConsumer<String, String> {
 			}
 		} catch (WakeupException e) {
 			if (isRunning())
-				JMExceptionManager.logException(log, e, "consume");
+				JMExceptionManager.logException(log, e,
+						"consume#WakeupException");
 		} finally {
 			super.close();
 		}
@@ -193,7 +194,12 @@ public class JMKafkaConsumer extends KafkaConsumer<String, String> {
 			ConsumerRecords<String, String> consumerRecords) {
 		log.debug("Consume Timestamp = {}, Record Count = {}",
 				System.currentTimeMillis(), consumerRecords.count());
-		consumer.accept(consumerRecords);
+		try {
+			consumer.accept(consumerRecords);
+		} catch (Exception e) {
+			JMExceptionManager.logException(log, e, "handleConsumerRecords",
+					consumerRecords);
+		}
 	}
 
 	private void checkPauseStatus() {
