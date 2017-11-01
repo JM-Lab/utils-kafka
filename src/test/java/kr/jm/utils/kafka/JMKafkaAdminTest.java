@@ -62,6 +62,7 @@ public class JMKafkaAdminTest {
 		String topic = "newTestTopic";
 		jmKafkaAdmin.createTopic(topic, 1, 1);
 		System.out.println(jmKafkaAdmin.getAllTopicInfo());
+		System.out.println(jmKafkaAdmin.getTopicList());
 		assertEquals(topic, jmKafkaAdmin.getTopicList().get(0));
 		jmKafkaAdmin.createTopic(topic, 1, 1);
 		jmKafkaAdmin.createTopic(topic + "2", 1, 1);
