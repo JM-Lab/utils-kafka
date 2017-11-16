@@ -1,188 +1,155 @@
 package kr.jm.utils.zookeeper;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.InetSocketAddress;
-
-import org.apache.zookeeper.server.ServerCnxn;
-import org.apache.zookeeper.server.ServerCnxnFactory;
-import org.apache.zookeeper.server.ZooKeeperServer;
-
 import kr.jm.utils.enums.OS;
 import kr.jm.utils.exception.JMExceptionManager;
 import kr.jm.utils.helper.JMLog;
 import kr.jm.utils.helper.JMPath;
 import kr.jm.utils.helper.JMString;
+import kr.jm.utils.helper.JMThread;
+import org.apache.zookeeper.server.ServerConfig;
+import org.apache.zookeeper.server.ZooKeeperServerMain;
+import org.apache.zookeeper.server.quorum.QuorumPeerConfig;
+
+import java.io.File;
+import java.lang.reflect.Method;
+import java.util.Properties;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
+
+import static org.apache.zookeeper.server.ZooKeeperServer.DEFAULT_TICK_TIME;
 
 /**
  * The Class JMZookeeperServer.
  */
-public class JMZookeeperServer extends ZooKeeperServer {
-	private static final String ZOOKEEPER_DIR = "zookeeper-dir";
+public class JMZookeeperServer extends ZooKeeperServerMain {
+    /**
+     * The constant DEFAULT_ZOOKEEPER_DIR.
+     */
+    public static final String DEFAULT_ZOOKEEPER_DIR = "zookeeper-dir";
 
-	private static final org.slf4j.Logger log =
-			org.slf4j.LoggerFactory.getLogger(JMZookeeperServer.class);
+    private static final org.slf4j.Logger log =
+            org.slf4j.LoggerFactory.getLogger(JMZookeeperServer.class);
 
-	private String hostnameOrIp;
-	private int port;
-	private int numConnections = 1024;
-	private ServerCnxnFactory serverFactory;
+    private int port;
+    private Properties properties;
+    private ExecutorService zookeeperThreadService;
 
-	/**
-	 * Instantiates a new JM zookeeper server.
-	 *
-	 * @throws IOException
-	 *             Signals that an I/O exception has occurred.
-	 */
-	public JMZookeeperServer() throws IOException {
-		this(ZOOKEEPER_DIR);
-	}
+    /**
+     * Instantiates a new JM zookeeper server.
+     *
+     */
+    public JMZookeeperServer() {
+        this(DEFAULT_ZOOKEEPER_DIR);
+    }
 
-	/**
-	 * Instantiates a new JM zookeeper server.
-	 *
-	 * @param zookeeperDirPath
-	 *            the zookeeper dir path
-	 * @throws IOException
-	 *             Signals that an I/O exception has occurred.
-	 */
-	public JMZookeeperServer(String zookeeperDirPath) throws IOException {
-		this(OS.getHostname(), OS.getAvailableLocalPort(),
-				JMPath.getPath(zookeeperDirPath).toFile(), 2000);
-	}
+    /**
+     * Instantiates a new JM zookeeper server.
+     *
+     * @param zookeeperDirPath the zookeeper dir path
+     */
+    public JMZookeeperServer(String zookeeperDirPath) {
+        this(2181, zookeeperDirPath);
+    }
 
-	/**
-	 * Instantiates a new JM zookeeper server.
-	 *
-	 * @param hostnameOrIp
-	 *            the hostname or ip
-	 * @param port
-	 *            the port
-	 * @throws IOException
-	 *             Signals that an I/O exception has occurred.
-	 */
-	public JMZookeeperServer(String hostnameOrIp, int port) throws IOException {
-		this(hostnameOrIp, port, ZOOKEEPER_DIR);
-	}
+    /**
+     * Instantiates a new JM zookeeper server.
+     *
+     * @param port the port
+     */
+    public JMZookeeperServer(int port) {
+        this(port, DEFAULT_ZOOKEEPER_DIR);
+    }
 
-	/**
-	 * Instantiates a new JM zookeeper server.
-	 *
-	 * @param hostnameOrIp
-	 *            the hostname or ip
-	 * @param port
-	 *            the port
-	 * @param zookeeperDirPath
-	 *            the zookeeper dir path
-	 * @throws IOException
-	 *             Signals that an I/O exception has occurred.
-	 */
-	public JMZookeeperServer(String hostnameOrIp, int port,
-			String zookeeperDirPath) throws IOException {
-		this(hostnameOrIp, port, JMPath.getPath(zookeeperDirPath).toFile(),
-				2000);
-	}
+    /**
+     * Instantiates a new JM zookeeper server.
+     *
+     * @param port             the port
+     * @param zookeeperDirPath the zookeeper dir path
+     */
+    public JMZookeeperServer(int port, String zookeeperDirPath) {
+        this(port, zookeeperDirPath, DEFAULT_TICK_TIME);
+    }
 
-	/**
-	 * Instantiates a new JM zookeeper server.
-	 *
-	 * @param hostnameOrIp
-	 *            the hostname or ip
-	 * @param port
-	 *            the port
-	 * @param zookeeperDirPath
-	 *            the zookeeper dir path
-	 * @param tickTime
-	 *            the tick time
-	 * @throws IOException
-	 *             Signals that an I/O exception has occurred.
-	 */
-	public JMZookeeperServer(String hostnameOrIp, int port,
-			String zookeeperDirPath, int tickTime) throws IOException {
-		this(hostnameOrIp, port, JMPath.getPath(zookeeperDirPath).toFile(),
-				tickTime);
-	}
+    /**
+     * Instantiates a new Jm zookeeper server.
+     *
+     * @param port             the port
+     * @param zookeeperDirPath the zookeeper dir path
+     * @param tickTime         the tick time
+     */
+    public JMZookeeperServer(int port, String zookeeperDirPath, int tickTime) {
+        this(port, JMPath.getPath(zookeeperDirPath).toFile(),
+                tickTime);
+    }
 
-	/**
-	 * Instantiates a new JM zookeeper server.
-	 *
-	 * @param hostnameOrIp
-	 *            the hostname or ip
-	 * @param port
-	 *            the port
-	 * @param zookeeperDir
-	 *            the zookeeper dir
-	 * @param tickTime
-	 *            the tick time
-	 * @throws IOException
-	 *             Signals that an I/O exception has occurred.
-	 */
-	public JMZookeeperServer(String hostnameOrIp, int port, File zookeeperDir,
-			int tickTime) throws IOException {
-		this(hostnameOrIp, port, zookeeperDir, zookeeperDir, tickTime);
-	}
+    /**
+     * Instantiates a new JM zookeeper server.
+     *
+     * @param port     the port
+     * @param dataDir  the data dir
+     * @param tickTime the tick time
+     */
+    public JMZookeeperServer(int port, File dataDir, int tickTime) {
+        this.port = port;
+        this.zookeeperThreadService = JMThread.newSingleThreadPool();
+        this.properties = new Properties();
+        properties.setProperty("tickTime", String.valueOf(tickTime));
+        properties.setProperty("dataDir", dataDir.getAbsolutePath());
+        properties.setProperty("clientPort", String.valueOf(port));
+    }
 
-	/**
-	 * Instantiates a new JM zookeeper server.
-	 *
-	 * @param hostnameOrIp
-	 *            the hostname or ip
-	 * @param port
-	 *            the port
-	 * @param snapDir
-	 *            the snap dir
-	 * @param logDir
-	 *            the log dir
-	 * @param tickTime
-	 *            the tick time
-	 * @throws IOException
-	 *             Signals that an I/O exception has occurred.
-	 */
-	public JMZookeeperServer(String hostnameOrIp, int port, File snapDir,
-			File logDir, int tickTime) throws IOException {
-		super(snapDir, logDir, tickTime);
-		this.hostnameOrIp = hostnameOrIp;
-		this.port = port;
-	}
+    /**
+     * Start.
+     *
+     * @return the JM zookeeper server
+     */
+    public JMZookeeperServer start() {
+        JMLog.info(log, "start", port);
+        JMThread.runAsync(() -> {
+            try {
+                Thread.currentThread()
+                        .setName("JMZookeeperServer-" + OS.getHostname());
+                QuorumPeerConfig quorumPeerConfig = new QuorumPeerConfig();
+                quorumPeerConfig.parseProperties(properties);
+                ServerConfig configuration = new ServerConfig();
+                configuration.readFrom(quorumPeerConfig);
+                runFromConfig(configuration);
+            } catch (Exception e) {
+                JMExceptionManager
+                        .handleExceptionAndThrowRuntimeEx(log, e, "start",
+                                port);
+            }
+        }, zookeeperThreadService);
 
-	/**
-	 * Start.
-	 *
-	 * @return the JM zookeeper server
-	 */
-	public JMZookeeperServer start() {
-		JMLog.info(log, "start", hostnameOrIp, port, numConnections);
-		try {
-			serverFactory = ServerCnxnFactory.createFactory(
-					new InetSocketAddress(hostnameOrIp, port), numConnections);
-			serverFactory.startup(this);
-		} catch (Exception e) {
-			JMExceptionManager.logException(log, e, "start", hostnameOrIp, port,
-					numConnections);
-		}
-		return this;
-	}
+        return this;
+    }
 
-	public Iterable<ServerCnxn> getConnection() {
-		return serverFactory.getConnections();
-	}
+    /**
+     * Stop.
+     */
+    public void stop() {
+        log.info("shutdown starting {} ms !!!", System.currentTimeMillis());
+        try {
+            Method shutdown =
+                    ZooKeeperServerMain.class.getDeclaredMethod("shutdown");
+            shutdown.setAccessible(true);
+            shutdown.invoke(this);
+            zookeeperThreadService.shutdown();
+            zookeeperThreadService.awaitTermination(10, TimeUnit.SECONDS);
+        } catch (Exception e) {
+            JMExceptionManager.logException(log, e, "stop",
+                    zookeeperThreadService.shutdownNow());
+        }
+        log.info("shutdown completely Over {} ms !!!",
+                System.currentTimeMillis());
+    }
 
-	/**
-	 * Stop.
-	 */
-	public void stop() {
-		serverFactory.shutdown();
-	}
-
-	public int getNumConnections() {
-		return numConnections;
-	}
-
-	public void setNumConnections(int numConnections) {
-		this.numConnections = numConnections;
-	}
-
-	public String getZookeeperConnect() {
-		return JMString.buildIpOrHostnamePortPair(hostnameOrIp, port);
-	}
+    /**
+     * Gets zookeeper connect.
+     *
+     * @return the zookeeper connect
+     */
+    public String getZookeeperConnect() {
+        return JMString.buildIpOrHostnamePortPair(OS.getIp(), port);
+    }
 }

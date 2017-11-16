@@ -17,6 +17,9 @@ import kafka.utils.ZkUtils;
 import kr.jm.utils.exception.JMExceptionManager;
 import kr.jm.utils.helper.JMLog;
 
+/**
+ * The type Jm kafka admin.
+ */
 public class JMKafkaAdmin {
     private static final org.slf4j.Logger log =
             org.slf4j.LoggerFactory.getLogger(JMKafkaAdmin.class);
@@ -26,6 +29,12 @@ public class JMKafkaAdmin {
     private int connectionTimeoutMs = 3 * 1000;
     private boolean isSecureKafkaCluster = false;
 
+    /**
+     * Instantiates a new Jm kafka admin.
+     *
+     * @param zookeeperConnect the zookeeper connect
+     * @param bootstrapServers the bootstrap servers
+     */
     public JMKafkaAdmin(String zookeeperConnect, String bootstrapServers) {
         this.zookeeperConnect = zookeeperConnect;
         this.topicProperties = new Properties();
@@ -67,6 +76,14 @@ public class JMKafkaAdmin {
         }, methodName, params);
     }
 
+    /**
+     * Create topic.
+     *
+     * @param topic           the topic
+     * @param partitions      the partitions
+     * @param replication     the replication
+     * @param topicProperties the topic properties
+     */
     public void createTopic(String topic, int partitions, int replication,
             Properties topicProperties) {
         operation(
@@ -76,22 +93,45 @@ public class JMKafkaAdmin {
                 "createTopic", topic, partitions, replication, topicProperties);
     }
 
+    /**
+     * Create topic.
+     *
+     * @param topic       the topic
+     * @param partitions  the partitions
+     * @param replication the replication
+     */
     public void createTopic(String topic, int partitions, int replication) {
         createTopic(topic, partitions, replication, new Properties());
     }
 
+    /**
+     * Delete topic.
+     *
+     * @param topic the topic
+     */
     public void deleteTopic(String topic) {
         // if delete.topic.enable=true
         operation(zkUtils -> AdminUtils.deleteTopic(zkUtils, topic),
                 "deleteTopic", topic);
     }
 
+    /**
+     * Topic exists boolean.
+     *
+     * @param topic the topic
+     * @return the boolean
+     */
     public boolean topicExists(String topic) {
         return operationFunction(
                 zkUtils -> AdminUtils.topicExists(zkUtils, topic),
                 "topicExists", topic);
     }
 
+    /**
+     * Gets all topic info.
+     *
+     * @return the all topic info
+     */
     public Map<String, List<PartitionInfo>> getAllTopicInfo() {
         return getTopicConsumer().listTopics();
     }
@@ -100,42 +140,94 @@ public class JMKafkaAdmin {
         return new KafkaConsumer<>(topicProperties);
     }
 
+    /**
+     * Gets topic list.
+     *
+     * @return the topic list
+     */
     public List<String> getTopicList() {
         return new ArrayList<>(getAllTopicInfo().keySet());
     }
 
+    /**
+     * Gets partition info.
+     *
+     * @param topic the topic
+     * @return the partition info
+     */
     public List<PartitionInfo> getPartitionInfo(String topic) {
         return getAllTopicInfo().get(topic);
     }
 
+    /**
+     * Gets partition count.
+     *
+     * @param topic the topic
+     * @return the partition count
+     */
     public int getPartitionCount(String topic) {
         return getPartitionInfo(topic).size();
     }
 
+    /**
+     * Gets zookeeper connect.
+     *
+     * @return the zookeeper connect
+     */
     public String getZookeeperConnect() {
         return zookeeperConnect;
     }
 
+    /**
+     * Gets session timeout ms.
+     *
+     * @return the session timeout ms
+     */
     public int getSessionTimeoutMs() {
         return sessionTimeoutMs;
     }
 
+    /**
+     * Sets session timeout ms.
+     *
+     * @param sessionTimeoutMs the session timeout ms
+     */
     public void setSessionTimeoutMs(int sessionTimeoutMs) {
         this.sessionTimeoutMs = sessionTimeoutMs;
     }
 
+    /**
+     * Gets connection timeout ms.
+     *
+     * @return the connection timeout ms
+     */
     public int getConnectionTimeoutMs() {
         return connectionTimeoutMs;
     }
 
+    /**
+     * Sets connection timeout ms.
+     *
+     * @param connectionTimeoutMs the connection timeout ms
+     */
     public void setConnectionTimeoutMs(int connectionTimeoutMs) {
         this.connectionTimeoutMs = connectionTimeoutMs;
     }
 
+    /**
+     * Is secure kafka cluster boolean.
+     *
+     * @return the boolean
+     */
     public boolean isSecureKafkaCluster() {
         return isSecureKafkaCluster;
     }
 
+    /**
+     * Sets secure kafka cluster.
+     *
+     * @param isSecureKafkaCluster the is secure kafka cluster
+     */
     public void setSecureKafkaCluster(boolean isSecureKafkaCluster) {
         this.isSecureKafkaCluster = isSecureKafkaCluster;
     }
