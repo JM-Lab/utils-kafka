@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
 import static org.apache.zookeeper.server.ZooKeeperServer.DEFAULT_TICK_TIME;
 
 /**
- * The Class JMZookeeperServer.
+ * The type Jm zookeeper server.
  */
 public class JMZookeeperServer extends ZooKeeperServerMain {
     /**
@@ -35,15 +35,14 @@ public class JMZookeeperServer extends ZooKeeperServerMain {
     private ExecutorService zookeeperThreadService;
 
     /**
-     * Instantiates a new JM zookeeper server.
-     *
+     * Instantiates a new Jm zookeeper server.
      */
     public JMZookeeperServer() {
         this(DEFAULT_ZOOKEEPER_DIR);
     }
 
     /**
-     * Instantiates a new JM zookeeper server.
+     * Instantiates a new Jm zookeeper server.
      *
      * @param zookeeperDirPath the zookeeper dir path
      */
@@ -52,7 +51,7 @@ public class JMZookeeperServer extends ZooKeeperServerMain {
     }
 
     /**
-     * Instantiates a new JM zookeeper server.
+     * Instantiates a new Jm zookeeper server.
      *
      * @param port the port
      */
@@ -61,7 +60,7 @@ public class JMZookeeperServer extends ZooKeeperServerMain {
     }
 
     /**
-     * Instantiates a new JM zookeeper server.
+     * Instantiates a new Jm zookeeper server.
      *
      * @param port             the port
      * @param zookeeperDirPath the zookeeper dir path
@@ -83,7 +82,7 @@ public class JMZookeeperServer extends ZooKeeperServerMain {
     }
 
     /**
-     * Instantiates a new JM zookeeper server.
+     * Instantiates a new Jm zookeeper server.
      *
      * @param port     the port
      * @param dataDir  the data dir
@@ -99,9 +98,9 @@ public class JMZookeeperServer extends ZooKeeperServerMain {
     }
 
     /**
-     * Start.
+     * Start jm zookeeper server.
      *
-     * @return the JM zookeeper server
+     * @return the jm zookeeper server
      */
     public JMZookeeperServer start() {
         JMLog.info(log, "start", port);

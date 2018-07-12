@@ -6,19 +6,21 @@ import kr.jm.utils.exception.JMExceptionManager;
 import kr.jm.utils.helper.JMLog;
 import kr.jm.utils.helper.JMThread;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.serialization.Serdes;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 /**
- * The Class JMKafkaConsumer.
+ * The type Jm output consumer.
  */
 public class JMKafkaConsumer extends KafkaConsumer<String, String> {
 
@@ -34,16 +36,16 @@ public class JMKafkaConsumer extends KafkaConsumer<String, String> {
 
     private ExecutorService kafkaConsumerThreadPool;
 
-    private RecordsConsumer consumer;
+    private RecordConsumer recordConsumer;
 
     /**
-     * Instantiates a new JM kafka consumer.
+     * Instantiates a new Jm output consumer.
      *
-     * @param properties the properties
-     * @param consumer   the consumer
-     * @param topics     the topics
+     * @param properties     the properties
+     * @param recordConsumer the record consumer
+     * @param topics         the topics
      */
-    public JMKafkaConsumer(Properties properties, RecordsConsumer consumer,
+    public JMKafkaConsumer(Properties properties, RecordConsumer recordConsumer,
             String... topics) {
         super(properties, Serdes.String().deserializer(),
                 Serdes.String().deserializer());
@@ -51,62 +53,82 @@ public class JMKafkaConsumer extends KafkaConsumer<String, String> {
         this.paused = new AtomicBoolean();
         this.pollIntervalMs = 100;
         this.kafkaConsumerThreadPool = JMThread.newSingleThreadPool();
-        this.consumer = consumer;
+        this.recordConsumer = recordConsumer;
         this.topics = topics;
         this.groupId = properties.getProperty(ConsumerConfig.GROUP_ID_CONFIG);
         subscribe(topics);
     }
 
     /**
-     * Instantiates a new JM kafka consumer.
+     * Instantiates a new Jm output consumer.
      *
      * @param bootstrapServers the bootstrap servers
      * @param groupId          the group id
-     * @param consumer         the consumer
+     * @param recordConsumer   the record consumer
      * @param topics           the topics
      */
     public JMKafkaConsumer(String bootstrapServers, String groupId,
-            RecordsConsumer consumer, String... topics) {
-        this(false, bootstrapServers, groupId, consumer, topics);
+            RecordConsumer recordConsumer, String... topics) {
+        this(false, bootstrapServers, groupId, recordConsumer, topics);
     }
 
     /**
-     * Instantiates a new JM kafka consumer.
+     * Instantiates a new Jm output consumer.
      *
      * @param isLatest         the is latest
      * @param bootstrapServers the bootstrap servers
      * @param groupId          the group id
-     * @param consumer         the consumer
+     * @param recordConsumer   the record consumer
      * @param topics           the topics
      */
     public JMKafkaConsumer(boolean isLatest, String bootstrapServers,
-            String groupId, RecordsConsumer consumer, String... topics) {
-        this(isLatest, bootstrapServers, groupId, 1000, consumer,
+            String groupId, RecordConsumer recordConsumer, String... topics) {
+        this(isLatest, bootstrapServers, groupId, 1000, recordConsumer,
                 topics);
     }
 
     /**
-     * Instantiates a new JM kafka consumer.
+     * Instantiates a new Jm output consumer.
      *
      * @param isLatest             the is latest
      * @param bootstrapServers     the bootstrap servers
      * @param groupId              the group id
      * @param autoCommitIntervalMs the auto commit interval ms
-     * @param consumer             the consumer
+     * @param recordConsumer       the record consumer
      * @param topics               the topics
      */
     public JMKafkaConsumer(boolean isLatest, String bootstrapServers,
-            String groupId, int autoCommitIntervalMs, RecordsConsumer consumer,
+            String groupId, int autoCommitIntervalMs,
+            RecordConsumer recordConsumer,
             String... topics) {
-        this(new Properties() {{
-            put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,
-                    bootstrapServers);
-            put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
-            put(ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG,
-                    autoCommitIntervalMs);
-            put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG,
-                    isLatest ? "latest" : "earliest");
-        }}, consumer, topics);
+        this(buildProperties(isLatest, bootstrapServers, groupId,
+                autoCommitIntervalMs), recordConsumer, topics);
+    }
+
+    /**
+     * Build properties properties.
+     *
+     * @param isLatest             the is latest
+     * @param bootstrapServers     the bootstrap servers
+     * @param groupId              the group id
+     * @param autoCommitIntervalMs the auto commit interval ms
+     * @return the properties
+     */
+    public static Properties buildProperties(Boolean isLatest,
+            String bootstrapServers, String groupId,
+            Integer autoCommitIntervalMs) {
+        return new Properties() {{
+            put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+            Optional.ofNullable(isLatest).ifPresent(
+                    isLatest -> put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG,
+                            isLatest ? "latest" : "earliest"));
+            Optional.ofNullable(groupId).ifPresent(
+                    groupId -> put(ConsumerConfig.GROUP_ID_CONFIG, groupId));
+            Optional.ofNullable(autoCommitIntervalMs).ifPresent(
+                    autoCommitIntervalMs -> put(
+                            ConsumerConfig.AUTO_COMMIT_INTERVAL_MS_CONFIG,
+                            autoCommitIntervalMs));
+        }};
     }
 
     /**
@@ -119,9 +141,9 @@ public class JMKafkaConsumer extends KafkaConsumer<String, String> {
     }
 
     /**
-     * Start.
+     * Start jm output consumer.
      *
-     * @return the jm kafka consumer
+     * @return the jm output consumer
      */
     public JMKafkaConsumer start() {
         JMLog.info(log, "start", groupId, Arrays.asList(topics),
@@ -153,7 +175,7 @@ public class JMKafkaConsumer extends KafkaConsumer<String, String> {
         log.debug("Consume Timestamp = {}, Record Count = {}",
                 System.currentTimeMillis(), consumerRecords.count());
         try {
-            consumer.accept(consumerRecords);
+            consumerRecords.forEach(recordConsumer);
         } catch (Exception e) {
             JMExceptionManager.logException(log, e, "handleConsumerRecords",
                     consumerRecords);
@@ -241,11 +263,11 @@ public class JMKafkaConsumer extends KafkaConsumer<String, String> {
     }
 
     /**
-     * The Interface RecordsConsumer.
+     * The interface Record consumer.
      */
     @FunctionalInterface
-    public interface RecordsConsumer
-            extends Consumer<ConsumerRecords<String, String>> {
+    public interface RecordConsumer
+            extends Consumer<ConsumerRecord<String, String>> {
     }
 
 }

@@ -7,8 +7,6 @@ import kr.jm.utils.helper.JMPathOperation;
 import kr.jm.utils.helper.JMStream;
 import kr.jm.utils.kafka.JMKafkaServer;
 import kr.jm.utils.zookeeper.JMZookeeperServer;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.log4j.BasicConfigurator;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,7 +27,6 @@ public class JMKafkaClientTest {
 
     static {
         System.setProperty("org.slf4j.simpleLogger.defaultLogLevel", "debug");
-        BasicConfigurator.configure();
     }
 
     private String groupId = "test";
@@ -98,15 +95,14 @@ public class JMKafkaClientTest {
         AutoStringBuilder resultString = new AutoStringBuilder(",");
         this.kafkaConsumer =
                 new JMKafkaConsumer(false, bootstrapServer, groupId,
-                        consumerRecords -> {
-                            indexAdder.add(consumerRecords.count());
-                            for (ConsumerRecord cr : consumerRecords) {
-                                resultString.append(cr.value());
-                                System.out
-                                        .printf("offset = %d, key = %s, value = %s%n",
-                                                cr.offset(), cr.key(),
-                                                cr.value());
-                            }
+                        consumerRecord -> {
+                            indexAdder.increment();
+                            resultString.append(consumerRecord.value());
+                            System.out
+                                    .printf("offset = %d, key = %s, value = %s%n",
+                                            consumerRecord.offset(),
+                                            consumerRecord.key(),
+                                            consumerRecord.value());
                         }, topic).start();
         sleep(5000);
         assertEquals(501, indexAdder.intValue());

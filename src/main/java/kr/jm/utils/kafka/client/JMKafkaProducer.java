@@ -14,11 +14,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.concurrent.Future;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
 
 /**
- * The Class JMKafkaProducer.
+ * The type Jm output producer.
  */
 public class JMKafkaProducer extends KafkaProducer<String, String> {
 
@@ -29,21 +31,7 @@ public class JMKafkaProducer extends KafkaProducer<String, String> {
     private ObjectMapper objectMapper;
 
     /**
-     * Instantiates a new JM kafka producer.
-     *
-     * @param producerProperties the producerProperties
-     */
-    public JMKafkaProducer(Properties producerProperties) {
-        super(producerProperties, Serdes.String().serializer(),
-                Serdes.String().serializer());
-        this.producerProperties = producerProperties;
-        this.objectMapper = new ObjectMapper()
-                .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-                .enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL);
-    }
-
-    /**
-     * Instantiates a new JM kafka producer.
+     * Instantiates a new Jm output producer.
      *
      * @param bootstrapServers the bootstrap servers
      */
@@ -52,7 +40,7 @@ public class JMKafkaProducer extends KafkaProducer<String, String> {
     }
 
     /**
-     * Instantiates a new Jm kafka producer.
+     * Instantiates a new Jm output producer.
      *
      * @param bootstrapServers the bootstrap servers
      * @param producerId       the producer id
@@ -62,7 +50,7 @@ public class JMKafkaProducer extends KafkaProducer<String, String> {
     }
 
     /**
-     * Instantiates a new Jm kafka producer.
+     * Instantiates a new Jm output producer.
      *
      * @param bootstrapServers the bootstrap servers
      * @param producerId       the producer id
@@ -73,21 +61,60 @@ public class JMKafkaProducer extends KafkaProducer<String, String> {
      */
     public JMKafkaProducer(String bootstrapServers, String producerId,
             int retries, int batchSize, int bufferMemory, int lingerMs) {
-        this(new Properties() {{
+        this(buildProperties(bootstrapServers, producerId, retries, batchSize,
+                bufferMemory, lingerMs));
+    }
+
+    /**
+     * Build properties properties.
+     *
+     * @param bootstrapServers the bootstrap servers
+     * @param producerId       the producer id
+     * @param retries          the retries
+     * @param batchSize        the batch size
+     * @param bufferMemory     the buffer memory
+     * @param lingerMs         the linger ms
+     * @return the properties
+     */
+    public static Properties buildProperties(String bootstrapServers,
+            String producerId, Integer retries, Integer batchSize,
+            Integer bufferMemory, Integer lingerMs) {
+        return new Properties() {{
             put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,
                     bootstrapServers);
             Optional.ofNullable(producerId).ifPresent(
                     clientId -> put(ProducerConfig.CLIENT_ID_CONFIG, clientId));
+            Optional.ofNullable(retries).ifPresent(
+                    retries -> put(ProducerConfig.RETRIES_CONFIG, retries));
+            Optional.ofNullable(batchSize).ifPresent(
+                    batchSize -> put(ProducerConfig.BATCH_SIZE_CONFIG,
+                            batchSize));
+            Optional.ofNullable(bufferMemory).ifPresent(
+                    bufferMemory -> put(ProducerConfig.BUFFER_MEMORY_CONFIG,
+                            bufferMemory));
+            Optional.ofNullable(lingerMs).ifPresent(
+                    lingerMs -> put(ProducerConfig.LINGER_MS_CONFIG, lingerMs));
             put(ProducerConfig.ACKS_CONFIG, "all");
-            put(ProducerConfig.RETRIES_CONFIG, retries);
-            put(ProducerConfig.BATCH_SIZE_CONFIG, batchSize);
-            put(ProducerConfig.BUFFER_MEMORY_CONFIG, bufferMemory);
-            put(ProducerConfig.LINGER_MS_CONFIG, lingerMs);
-        }});
+        }};
     }
 
     /**
-     * Send list.
+     * Instantiates a new Jm output producer.
+     *
+     * @param producerProperties the producer properties
+     */
+    public JMKafkaProducer(Properties producerProperties) {
+        super(producerProperties, Serdes.String().serializer(),
+                Serdes.String().serializer());
+        this.producerProperties = producerProperties;
+        this.objectMapper = new ObjectMapper()
+                .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                .enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL);
+    }
+
+
+    /**
+     * Send list list.
      *
      * @param producerRecordList the producer record list
      * @return the list
@@ -99,7 +126,7 @@ public class JMKafkaProducer extends KafkaProducer<String, String> {
     }
 
     /**
-     * Send.
+     * Send future.
      *
      * @param value the value
      * @return the future
@@ -109,7 +136,7 @@ public class JMKafkaProducer extends KafkaProducer<String, String> {
     }
 
     /**
-     * Send.
+     * Send future.
      *
      * @param key   the key
      * @param value the value
@@ -120,7 +147,7 @@ public class JMKafkaProducer extends KafkaProducer<String, String> {
     }
 
     /**
-     * Send.
+     * Send future.
      *
      * @param topic the topic
      * @param key   the key
@@ -132,9 +159,80 @@ public class JMKafkaProducer extends KafkaProducer<String, String> {
     }
 
     /**
-     * Send json string.
+     * Send string list list.
      *
-     * @param <T>    the generic type
+     * @param value the value
+     * @return the list
+     */
+    public List<Future<RecordMetadata>> sendStringList(List<String> value) {
+        return sendStringStream(null, value.stream());
+    }
+
+    /**
+     * Send string list list.
+     *
+     * @param key   the key
+     * @param value the value
+     * @return the list
+     */
+    public List<Future<RecordMetadata>> sendStringList(String key,
+            List<String> value) {
+        return sendStringList(getDefaultTopic(), key, value);
+    }
+
+    /**
+     * Send string list list.
+     *
+     * @param topic the topic
+     * @param key   the key
+     * @param value the value
+     * @return the list
+     */
+    public List<Future<RecordMetadata>> sendStringList(String topic, String key,
+            List<String> value) {
+        return sendStringStream(topic, key, value.stream());
+    }
+
+    /**
+     * Send string stream list.
+     *
+     * @param value the value
+     * @return the list
+     */
+    public List<Future<RecordMetadata>> sendStringStream(Stream<String> value) {
+        return sendStringStream(getDefaultTopic(), null, value);
+    }
+
+    /**
+     * Send string stream list.
+     *
+     * @param key   the key
+     * @param value the value
+     * @return the list
+     */
+    public List<Future<RecordMetadata>> sendStringStream(String key,
+            Stream<String> value) {
+        return sendStringStream(getDefaultTopic(), key, value);
+    }
+
+    /**
+     * Send string stream list.
+     *
+     * @param topic the topic
+     * @param key   the key
+     * @param value the value
+     * @return the list
+     */
+    public List<Future<RecordMetadata>> sendStringStream(String topic,
+            String key, Stream<String> value) {
+        return value.map(s -> send(topic, key, s)).collect(Collectors.toList());
+    }
+
+
+    /**
+     * Send json string future.
+     *
+     * @param <T>    the type parameter
      * @param object the object
      * @return the future
      */
@@ -143,9 +241,9 @@ public class JMKafkaProducer extends KafkaProducer<String, String> {
     }
 
     /**
-     * Send json string.
+     * Send json string future.
      *
-     * @param <T>    the generic type
+     * @param <T>    the type parameter
      * @param key    the key
      * @param object the object
      * @return the future
@@ -180,9 +278,9 @@ public class JMKafkaProducer extends KafkaProducer<String, String> {
     }
 
     /**
-     * Send sync and get serialized size.
+     * Send sync and get serialized size int.
      *
-     * @param <T>    the generic type
+     * @param <T>    the type parameter
      * @param key    the key
      * @param object the object
      * @return the int
@@ -207,7 +305,7 @@ public class JMKafkaProducer extends KafkaProducer<String, String> {
     }
 
     /**
-     * Send sync.
+     * Send sync optional.
      *
      * @param producerRecord the producer record
      * @return the optional
@@ -237,7 +335,7 @@ public class JMKafkaProducer extends KafkaProducer<String, String> {
     }
 
     /**
-     * Send sync.
+     * Send sync optional.
      *
      * @param key   the key
      * @param value the value
@@ -248,7 +346,7 @@ public class JMKafkaProducer extends KafkaProducer<String, String> {
     }
 
     /**
-     * Send sync.
+     * Send sync optional.
      *
      * @param value the value
      * @return the optional
@@ -258,7 +356,7 @@ public class JMKafkaProducer extends KafkaProducer<String, String> {
     }
 
     /**
-     * Send list sync.
+     * Send list sync list.
      *
      * @param producerRecordList the producer record list
      * @return the list
@@ -277,7 +375,7 @@ public class JMKafkaProducer extends KafkaProducer<String, String> {
     }
 
     /**
-     * Builds the sent serialized size.
+     * Build sent serialized size int.
      *
      * @param recordMetadata the record metadata
      * @return the int
@@ -302,7 +400,7 @@ public class JMKafkaProducer extends KafkaProducer<String, String> {
     }
 
     /**
-     * Builds the producer record.
+     * Build producer record producer record.
      *
      * @param key   the key
      * @param value the value
@@ -314,7 +412,7 @@ public class JMKafkaProducer extends KafkaProducer<String, String> {
     }
 
     /**
-     * Builds the producer record.
+     * Build producer record producer record.
      *
      * @param value the value
      * @return the producer record
@@ -323,16 +421,22 @@ public class JMKafkaProducer extends KafkaProducer<String, String> {
         return buildProducerRecord(null, value);
     }
 
-    private String getDefaultTopic() {
-        return Optional.ofNullable(defaultTopic).orElseThrow(
-                () -> new RuntimeException("Default Topic Is Null !!!"));
+    /**
+     * Gets default topic.
+     *
+     * @return the default topic
+     */
+    public String getDefaultTopic() {
+        return Optional.ofNullable(defaultTopic)
+                .orElseGet(() -> this.defaultTopic =
+                        "JMKafkaProducer-" + System.currentTimeMillis());
     }
 
 
     /**
-     * Builds the producer record.
+     * Build producer record producer record.
      *
-     * @param <T>    the generic type
+     * @param <T>    the type parameter
      * @param key    the key
      * @param object the object
      * @return the producer record
@@ -357,9 +461,9 @@ public class JMKafkaProducer extends KafkaProducer<String, String> {
     }
 
     /**
-     * Builds the producer record.
+     * Build producer record producer record.
      *
-     * @param <T>    the generic type
+     * @param <T>    the type parameter
      * @param object the object
      * @return the producer record
      */
@@ -377,9 +481,9 @@ public class JMKafkaProducer extends KafkaProducer<String, String> {
     }
 
     /**
-     * Send json string sync.
+     * Send json string sync optional.
      *
-     * @param <T>    the generic type
+     * @param <T>    the type parameter
      * @param object the object
      * @return the optional
      */
@@ -388,9 +492,9 @@ public class JMKafkaProducer extends KafkaProducer<String, String> {
     }
 
     /**
-     * Send json string sync.
+     * Send json string sync optional.
      *
-     * @param <T>    the generic type
+     * @param <T>    the type parameter
      * @param key    the key
      * @param object the object
      * @return the optional
@@ -431,9 +535,9 @@ public class JMKafkaProducer extends KafkaProducer<String, String> {
     }
 
     /**
-     * Send json string list sync.
+     * Send json string list sync list.
      *
-     * @param <T>        the generic type
+     * @param <T>        the type parameter
      * @param key        the key
      * @param objectList the object list
      * @return the list
@@ -444,9 +548,9 @@ public class JMKafkaProducer extends KafkaProducer<String, String> {
     }
 
     /**
-     * Send json string list sync.
+     * Send json string list sync list.
      *
-     * @param <T>        the generic type
+     * @param <T>        the type parameter
      * @param objectList the object list
      * @return the list
      */
@@ -468,9 +572,9 @@ public class JMKafkaProducer extends KafkaProducer<String, String> {
     }
 
     /**
-     * Send json string list.
+     * Send json string list list.
      *
-     * @param <T>        the generic type
+     * @param <T>        the type parameter
      * @param key        the key
      * @param objectList the object list
      * @return the list
@@ -491,16 +595,15 @@ public class JMKafkaProducer extends KafkaProducer<String, String> {
      */
     public <T> List<Future<RecordMetadata>> sendJsonStringList(String topic,
             String key, List<T> objectList) {
-        return objectList.stream()
-                .map(object -> sendJsonString(topic, key, object))
-                .collect(toList());
+        return sendStringStream(topic, key,
+                objectList.stream().map(object -> buildJsonString(object)));
     }
 
     /**
-     * With default topic jm kafka producer.
+     * With default topic jm output producer.
      *
      * @param defaultTopic the default topic
-     * @return the jm kafka producer
+     * @return the jm output producer
      */
     public JMKafkaProducer withDefaultTopic(String defaultTopic) {
         this.defaultTopic = defaultTopic;
@@ -508,10 +611,10 @@ public class JMKafkaProducer extends KafkaProducer<String, String> {
     }
 
     /**
-     * With object mapper jm kafka producer.
+     * With object mapper jm output producer.
      *
      * @param objectMapper the object mapper
-     * @return the jm kafka producer
+     * @return the jm output producer
      */
     public JMKafkaProducer withObjectMapper(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;

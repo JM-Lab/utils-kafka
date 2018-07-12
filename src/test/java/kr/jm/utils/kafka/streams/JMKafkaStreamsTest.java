@@ -11,7 +11,6 @@ import kr.jm.utils.kafka.client.JMKafkaProducer;
 import kr.jm.utils.zookeeper.JMZookeeperServer;
 import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.Topology;
-import org.apache.log4j.BasicConfigurator;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,7 +29,6 @@ import static org.junit.Assert.assertEquals;
 public class JMKafkaStreamsTest {
     static {
         System.setProperty("org.slf4j.simpleLogger.defaultLogLevel", "debug");
-        BasicConfigurator.configure();
     }
 
     private String topic = "testStreamLocal";
@@ -95,7 +93,7 @@ public class JMKafkaStreamsTest {
     }
 
     /**
-     * Test JM kafka streams.
+     * Test JM output streams.
      *
      * @throws Exception the exception
      */

@@ -18,7 +18,7 @@ import java.util.Properties;
 import java.util.function.Consumer;
 
 /**
- * The Class JMKafkaStreamsHelper.
+ * The type Jm output streams helper.
  */
 public class JMKafkaStreamsHelper {
     private static final org.slf4j.Logger log =
@@ -47,13 +47,13 @@ public class JMKafkaStreamsHelper {
     }
 
     /**
-     * Stream with opt.
+     * Build k stream topology with opt topology.
      *
-     * @param <T>                the generic type
+     * @param <T>                the type parameter
      * @param additionalTopology the additional topology
      * @param typeReference      the type reference
      * @param topics             the topics
-     * @return the k buildKStream
+     * @return the topology
      */
     public static <T> Topology buildKStreamTopologyWithOpt(
             Consumer<KStream<String, Optional<T>>> additionalTopology,
@@ -145,14 +145,14 @@ public class JMKafkaStreamsHelper {
     }
 
     /**
-     * Stream.
+     * Build k stream topology topology.
      *
-     * @param <T>                the generic type
+     * @param <T>                the type parameter
      * @param additionalTopology the additional topology
      * @param objectMapper       the object mapper
      * @param typeReference      the type reference
      * @param topics             the topics
-     * @return the k buildKStream
+     * @return the topology
      */
     public static <T> Topology buildKStreamTopology(
             Consumer<KStream<String, T>> additionalTopology,
@@ -185,13 +185,13 @@ public class JMKafkaStreamsHelper {
     }
 
     /**
-     * Table with opt.
+     * Build table topology with opt topology.
      *
-     * @param <T>                the generic type
+     * @param <T>                the type parameter
      * @param additionalTopology the additional topology
      * @param typeReference      the type reference
      * @param topic              the topic
-     * @return the k buildKTableWithOpt
+     * @return the topology
      */
     public static <T> Topology buildTableTopologyWithOpt(
             Consumer<KTable<String, Optional<T>>> additionalTopology,
@@ -269,14 +269,14 @@ public class JMKafkaStreamsHelper {
     }
 
     /**
-     * Table.
+     * Build table topology topology.
      *
-     * @param <T>                the generic type
+     * @param <T>                the type parameter
      * @param additionalTopology the additional topology
      * @param objectMapper       the object mapper
      * @param typeReference      the type reference
      * @param topic              the topic
-     * @return the k buildKTableWithOpt
+     * @return the topology
      */
     public static <T> Topology buildTableTopology(
             Consumer<KTable<String, T>> additionalTopology,
@@ -290,13 +290,13 @@ public class JMKafkaStreamsHelper {
     }
 
     /**
-     * Build kafka streams kafka streams.
+     * Build output streams output streams.
      *
      * @param isLatest         the is latest
      * @param bootstrapServers the bootstrap servers
      * @param applicationId    the application id
      * @param topology         the topology
-     * @return the kafka streams
+     * @return the output streams
      */
     public static KafkaStreams buildKafkaStreams(boolean isLatest,
             String bootstrapServers, String applicationId, Topology topology) {
@@ -315,11 +315,11 @@ public class JMKafkaStreamsHelper {
     }
 
     /**
-     * Build kafka streams kafka streams.
+     * Build output streams output streams.
      *
      * @param topology               the topology
-     * @param kafkaStreamsProperties the kafka streams properties
-     * @return the kafka streams
+     * @param kafkaStreamsProperties the output streams properties
+     * @return the output streams
      */
     public static KafkaStreams buildKafkaStreams(Topology topology,
             Properties kafkaStreamsProperties) {
@@ -333,12 +333,12 @@ public class JMKafkaStreamsHelper {
     }
 
     /**
-     * Build kafka streams with start kafka streams.
+     * Build output streams with start output streams.
      *
      * @param bootstrapServers the bootstrap servers
      * @param applicationId    the application id
      * @param topology         the topology
-     * @return the kafka streams
+     * @return the output streams
      */
     public static KafkaStreams buildKafkaStreamsWithStart(
             String bootstrapServers, String applicationId, Topology topology) {
@@ -348,11 +348,11 @@ public class JMKafkaStreamsHelper {
     }
 
     /**
-     * Build kafka streams with start kafka streams.
+     * Build output streams with start output streams.
      *
-     * @param KafkaStreamsProperties the kafka streams properties
+     * @param KafkaStreamsProperties the output streams properties
      * @param topology               the topology
-     * @return the kafka streams
+     * @return the output streams
      */
     public static KafkaStreams buildKafkaStreamsWithStart(
             Properties KafkaStreamsProperties, Topology topology) {

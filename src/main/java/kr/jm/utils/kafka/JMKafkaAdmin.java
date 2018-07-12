@@ -18,7 +18,7 @@ import kr.jm.utils.exception.JMExceptionManager;
 import kr.jm.utils.helper.JMLog;
 
 /**
- * The type Jm kafka admin.
+ * The type Jm output admin.
  */
 public class JMKafkaAdmin {
     private static final org.slf4j.Logger log =
@@ -30,7 +30,7 @@ public class JMKafkaAdmin {
     private boolean isSecureKafkaCluster = false;
 
     /**
-     * Instantiates a new Jm kafka admin.
+     * Instantiates a new Jm output admin.
      *
      * @param zookeeperConnect the zookeeper connect
      * @param bootstrapServers the bootstrap servers
@@ -41,9 +41,9 @@ public class JMKafkaAdmin {
         this.topicProperties.put("bootstrap.servers", bootstrapServers);
         this.topicProperties.put("group.id", "jmKafkaAdmin");
         this.topicProperties.put("key.deserializer",
-                "org.apache.kafka.common.serialization.StringDeserializer");
+                "org.apache.output.common.serialization.StringDeserializer");
         this.topicProperties.put("value.deserializer",
-                "org.apache.kafka.common.serialization.StringDeserializer");
+                "org.apache.output.common.serialization.StringDeserializer");
     }
 
     private ZkUtils getZkUtils() {
@@ -215,7 +215,7 @@ public class JMKafkaAdmin {
     }
 
     /**
-     * Is secure kafka cluster boolean.
+     * Is secure output cluster boolean.
      *
      * @return the boolean
      */
@@ -224,9 +224,9 @@ public class JMKafkaAdmin {
     }
 
     /**
-     * Sets secure kafka cluster.
+     * Sets secure output cluster.
      *
-     * @param isSecureKafkaCluster the is secure kafka cluster
+     * @param isSecureKafkaCluster the is secure output cluster
      */
     public void setSecureKafkaCluster(boolean isSecureKafkaCluster) {
         this.isSecureKafkaCluster = isSecureKafkaCluster;
