@@ -12,7 +12,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
- * The type Jm output server.
+ * The type Jm kafka server.
  */
 public class JMKafkaServer {
     /**
@@ -29,7 +29,7 @@ public class JMKafkaServer {
     private ExecutorService kafkaBrokerThreadPool;
 
     /**
-     * Instantiates a new Jm output server.
+     * Instantiates a new Jm kafka server.
      *
      * @param zookeeperConnect the zookeeper connect
      */
@@ -38,7 +38,7 @@ public class JMKafkaServer {
     }
 
     /**
-     * Instantiates a new Jm output server.
+     * Instantiates a new Jm kafka server.
      *
      * @param zookeeperConnect the zookeeper connect
      * @param logDir           the log dir
@@ -49,7 +49,7 @@ public class JMKafkaServer {
 
 
     /**
-     * Instantiates a new Jm output server.
+     * Instantiates a new Jm kafka server.
      *
      * @param zookeeperConnect the zookeeper connect
      * @param serverPort       the server port
@@ -59,7 +59,7 @@ public class JMKafkaServer {
     }
 
     /**
-     * Instantiates a new Jm output server.
+     * Instantiates a new Jm kafka server.
      *
      * @param zookeeperConnect the zookeeper connect
      * @param serverPort       the server port
@@ -71,7 +71,7 @@ public class JMKafkaServer {
     }
 
     /**
-     * Instantiates a new Jm output server.
+     * Instantiates a new Jm kafka server.
      *
      * @param zookeeperConnect              the zookeeper connect
      * @param logDir                        the log dir
@@ -83,7 +83,7 @@ public class JMKafkaServer {
     }
 
     /**
-     * Instantiates a new Jm output server.
+     * Instantiates a new Jm kafka server.
      *
      * @param zookeeperConnect              the zookeeper connect
      * @param serverPort                    the server port
@@ -97,13 +97,13 @@ public class JMKafkaServer {
     }
 
     /**
-     * Instantiates a new Jm output server.
+     * Instantiates a new Jm kafka server.
      *
      * @param zookeeperConnect              the zookeeper connect
      * @param serverPort                    the server port
      * @param logDir                        the log dir
      * @param offsetsTopicReplicationFactor the offsets topic replication factor
-     * @param kafkaServerProperties         the output server properties
+     * @param kafkaServerProperties         the kafka server properties
      */
     public JMKafkaServer(String zookeeperConnect, int serverPort, String logDir,
             int offsetsTopicReplicationFactor,
@@ -119,9 +119,9 @@ public class JMKafkaServer {
     }
 
     /**
-     * Instantiates a new Jm output server.
+     * Instantiates a new Jm kafka server.
      *
-     * @param kafkaServerProperties the output server properties
+     * @param kafkaServerProperties the kafka server properties
      */
     public JMKafkaServer(Properties kafkaServerProperties) {
         this.kafkaServerProperties = kafkaServerProperties;
@@ -129,9 +129,9 @@ public class JMKafkaServer {
 
 
     /**
-     * Start jm output server.
+     * Start jm kafka server.
      *
-     * @return the jm output server
+     * @return the jm kafka server
      */
     public JMKafkaServer start() {
         this.kafkaServer =
@@ -178,27 +178,27 @@ public class JMKafkaServer {
     }
 
     /**
-     * Gets output server connect.
+     * Gets kafka server connect.
      *
-     * @return the output server connect
+     * @return the kafka server connect
      */
     public String getKafkaServerConnect() {
         return this.kafkaServerConnect;
     }
 
     /**
-     * Gets output server properties.
+     * Gets kafka server properties.
      *
-     * @return the output server properties
+     * @return the kafka server properties
      */
     public Properties getKafkaServerProperties() {
         return this.kafkaServerProperties;
     }
 
     /**
-     * Gets output log dir.
+     * Gets kafka log dir.
      *
-     * @return the output log dir
+     * @return the kafka log dir
      */
     public String getKafkaLogDir() {
         return this.kafkaServerProperties.getProperty(LOG_DIR);

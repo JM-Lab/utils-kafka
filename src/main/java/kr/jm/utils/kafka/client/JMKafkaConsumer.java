@@ -20,7 +20,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 /**
- * The type Jm output consumer.
+ * The type Jm kafka consumer.
  */
 public class JMKafkaConsumer extends KafkaConsumer<String, String> {
 
@@ -39,7 +39,7 @@ public class JMKafkaConsumer extends KafkaConsumer<String, String> {
     private RecordConsumer recordConsumer;
 
     /**
-     * Instantiates a new Jm output consumer.
+     * Instantiates a new Jm kafka consumer.
      *
      * @param properties     the properties
      * @param recordConsumer the record consumer
@@ -60,7 +60,7 @@ public class JMKafkaConsumer extends KafkaConsumer<String, String> {
     }
 
     /**
-     * Instantiates a new Jm output consumer.
+     * Instantiates a new Jm kafka consumer.
      *
      * @param bootstrapServers the bootstrap servers
      * @param groupId          the group id
@@ -73,7 +73,7 @@ public class JMKafkaConsumer extends KafkaConsumer<String, String> {
     }
 
     /**
-     * Instantiates a new Jm output consumer.
+     * Instantiates a new Jm kafka consumer.
      *
      * @param isLatest         the is latest
      * @param bootstrapServers the bootstrap servers
@@ -88,7 +88,7 @@ public class JMKafkaConsumer extends KafkaConsumer<String, String> {
     }
 
     /**
-     * Instantiates a new Jm output consumer.
+     * Instantiates a new Jm kafka consumer.
      *
      * @param isLatest             the is latest
      * @param bootstrapServers     the bootstrap servers
@@ -141,9 +141,9 @@ public class JMKafkaConsumer extends KafkaConsumer<String, String> {
     }
 
     /**
-     * Start jm output consumer.
+     * Start jm kafka consumer.
      *
-     * @return the jm output consumer
+     * @return the jm kafka consumer
      */
     public JMKafkaConsumer start() {
         JMLog.info(log, "start", groupId, Arrays.asList(topics),

@@ -24,7 +24,7 @@ import static kr.jm.utils.helper.JMLambda.getSelf;
 import static org.junit.Assert.assertEquals;
 
 /**
- * The Class JMKafkaStreamsTest.
+ * The type Jm kafka streams test.
  */
 public class JMKafkaStreamsTest {
     static {
@@ -40,6 +40,9 @@ public class JMKafkaStreamsTest {
     private String applicationId = "testKafkaStream";
     private KafkaStreams kafkaStreams;
 
+    /**
+     * Instantiates a new Jm kafka streams test.
+     */
     public JMKafkaStreamsTest() {
         Optional.of(JMPath.getPath(JMZookeeperServer.DEFAULT_ZOOKEEPER_DIR))
                 .filter(JMPath::exists)
@@ -51,12 +54,11 @@ public class JMKafkaStreamsTest {
     }
 
     /**
-     * Sets the up.
+     * Sets up.
      *
-     * @throws Exception the exception
      */
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         Optional.of(JMPath.getPath(JMZookeeperServer.DEFAULT_ZOOKEEPER_DIR))
                 .filter(JMPath::exists)
                 .ifPresent(JMPathOperation::deleteDir);
@@ -76,10 +78,9 @@ public class JMKafkaStreamsTest {
     /**
      * Tear down.
      *
-     * @throws Exception the exception
      */
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         kafkaStreams.close();
         kafkaProducer.close();
         kafkaServer.stop();
@@ -93,12 +94,11 @@ public class JMKafkaStreamsTest {
     }
 
     /**
-     * Test JM output streams.
+     * Test jm kafka streams.
      *
-     * @throws Exception the exception
      */
     @Test
-    public void testJMKafkaStreams() throws Exception {
+    public void testJMKafkaStreams() {
         Map<Integer, String> testMap = JMStream.numberRangeClosed(1, 500, 1)
                 .boxed().collect(toMap(getSelf(), i -> "Stream-" + i));
         kafkaProducer.sendJsonStringSync(testMap);

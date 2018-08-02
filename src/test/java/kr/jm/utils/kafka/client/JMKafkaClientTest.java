@@ -21,7 +21,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
- * The Class JMKafkaClientTest.
+ * The type Jm kafka client test.
  */
 public class JMKafkaClientTest {
 
@@ -39,12 +39,11 @@ public class JMKafkaClientTest {
     private String bootstrapServer;
 
     /**
-     * Sets the up.
+     * Sets up.
      *
-     * @throws Exception the exception
      */
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         Optional.of(JMPath.getPath(JMZookeeperServer.DEFAULT_ZOOKEEPER_DIR))
                 .filter(JMPath::exists)
                 .ifPresent(JMPathOperation::deleteDir);
@@ -87,10 +86,9 @@ public class JMKafkaClientTest {
     /**
      * Test start.
      *
-     * @throws Exception the exception
      */
     @Test
-    public final void testStart() throws Exception {
+    public final void testStart() {
         LongAdder indexAdder = new LongAdder();
         AutoStringBuilder resultString = new AutoStringBuilder(",");
         this.kafkaConsumer =

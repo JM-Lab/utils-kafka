@@ -15,14 +15,20 @@ import java.util.Properties;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
+/**
+ * The type Jm kafka admin test.
+ */
 public class JMKafkaAdminTest {
 
     private JMKafkaAdmin jmKafkaAdmin;
     private JMZookeeperServer zooKeeper;
     private JMKafkaServer jmKafkaServer;
 
+    /**
+     * Sets up.
+     */
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         Optional.of(JMPath.getPath(JMZookeeperServer.DEFAULT_ZOOKEEPER_DIR))
                 .filter(JMPath::exists)
                 .ifPresent(JMPathOperation::deleteDir);
@@ -43,8 +49,11 @@ public class JMKafkaAdminTest {
                 jmKafkaServer.getKafkaServerConnect());
     }
 
+    /**
+     * Tear down.
+     */
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         jmKafkaServer.stop();
         zooKeeper.stop();
         Optional.of(JMPath.getPath(JMZookeeperServer.DEFAULT_ZOOKEEPER_DIR))
@@ -55,8 +64,11 @@ public class JMKafkaAdminTest {
                 .ifPresent(JMPathOperation::deleteDir);
     }
 
+    /**
+     * Test jm kafka admin.
+     */
     @Test
-    public void testJMKafkaAdmin() throws Exception {
+    public void testJMKafkaAdmin() {
         System.out.println(jmKafkaAdmin.getAllTopicInfo());
         String topic = "newTestTopic";
         jmKafkaAdmin.createTopic(topic, 1, 1);

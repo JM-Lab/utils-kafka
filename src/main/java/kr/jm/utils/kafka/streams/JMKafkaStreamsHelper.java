@@ -18,7 +18,7 @@ import java.util.Properties;
 import java.util.function.Consumer;
 
 /**
- * The type Jm output streams helper.
+ * The type Jm kafka streams helper.
  */
 public class JMKafkaStreamsHelper {
     private static final org.slf4j.Logger log =
@@ -290,13 +290,13 @@ public class JMKafkaStreamsHelper {
     }
 
     /**
-     * Build output streams output streams.
+     * Build kafka streams kafka streams.
      *
      * @param isLatest         the is latest
      * @param bootstrapServers the bootstrap servers
      * @param applicationId    the application id
      * @param topology         the topology
-     * @return the output streams
+     * @return the kafka streams
      */
     public static KafkaStreams buildKafkaStreams(boolean isLatest,
             String bootstrapServers, String applicationId, Topology topology) {
@@ -315,11 +315,11 @@ public class JMKafkaStreamsHelper {
     }
 
     /**
-     * Build output streams output streams.
+     * Build kafka streams kafka streams.
      *
      * @param topology               the topology
-     * @param kafkaStreamsProperties the output streams properties
-     * @return the output streams
+     * @param kafkaStreamsProperties the kafka streams properties
+     * @return the kafka streams
      */
     public static KafkaStreams buildKafkaStreams(Topology topology,
             Properties kafkaStreamsProperties) {
@@ -333,12 +333,12 @@ public class JMKafkaStreamsHelper {
     }
 
     /**
-     * Build output streams with start output streams.
+     * Build kafka streams with start kafka streams.
      *
      * @param bootstrapServers the bootstrap servers
      * @param applicationId    the application id
      * @param topology         the topology
-     * @return the output streams
+     * @return the kafka streams
      */
     public static KafkaStreams buildKafkaStreamsWithStart(
             String bootstrapServers, String applicationId, Topology topology) {
@@ -348,11 +348,11 @@ public class JMKafkaStreamsHelper {
     }
 
     /**
-     * Build output streams with start output streams.
+     * Build kafka streams with start kafka streams.
      *
-     * @param KafkaStreamsProperties the output streams properties
+     * @param KafkaStreamsProperties the kafka streams properties
      * @param topology               the topology
-     * @return the output streams
+     * @return the kafka streams
      */
     public static KafkaStreams buildKafkaStreamsWithStart(
             Properties KafkaStreamsProperties, Topology topology) {

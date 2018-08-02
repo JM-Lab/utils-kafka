@@ -20,7 +20,7 @@ import java.util.stream.Stream;
 import static java.util.stream.Collectors.toList;
 
 /**
- * The type Jm output producer.
+ * The type Jm kafka producer.
  */
 public class JMKafkaProducer extends KafkaProducer<String, String> {
 
@@ -31,7 +31,7 @@ public class JMKafkaProducer extends KafkaProducer<String, String> {
     private ObjectMapper objectMapper;
 
     /**
-     * Instantiates a new Jm output producer.
+     * Instantiates a new Jm kafka producer.
      *
      * @param bootstrapServers the bootstrap servers
      */
@@ -40,7 +40,7 @@ public class JMKafkaProducer extends KafkaProducer<String, String> {
     }
 
     /**
-     * Instantiates a new Jm output producer.
+     * Instantiates a new Jm kafka producer.
      *
      * @param bootstrapServers the bootstrap servers
      * @param producerId       the producer id
@@ -50,7 +50,7 @@ public class JMKafkaProducer extends KafkaProducer<String, String> {
     }
 
     /**
-     * Instantiates a new Jm output producer.
+     * Instantiates a new Jm kafka producer.
      *
      * @param bootstrapServers the bootstrap servers
      * @param producerId       the producer id
@@ -99,7 +99,7 @@ public class JMKafkaProducer extends KafkaProducer<String, String> {
     }
 
     /**
-     * Instantiates a new Jm output producer.
+     * Instantiates a new Jm kafka producer.
      *
      * @param producerProperties the producer properties
      */
@@ -596,14 +596,14 @@ public class JMKafkaProducer extends KafkaProducer<String, String> {
     public <T> List<Future<RecordMetadata>> sendJsonStringList(String topic,
             String key, List<T> objectList) {
         return sendStringStream(topic, key,
-                objectList.stream().map(object -> buildJsonString(object)));
+                objectList.stream().map(this::buildJsonString));
     }
 
     /**
-     * With default topic jm output producer.
+     * With default topic jm kafka producer.
      *
      * @param defaultTopic the default topic
-     * @return the jm output producer
+     * @return the jm kafka producer
      */
     public JMKafkaProducer withDefaultTopic(String defaultTopic) {
         this.defaultTopic = defaultTopic;
@@ -611,10 +611,10 @@ public class JMKafkaProducer extends KafkaProducer<String, String> {
     }
 
     /**
-     * With object mapper jm output producer.
+     * With object mapper jm kafka producer.
      *
      * @param objectMapper the object mapper
-     * @return the jm output producer
+     * @return the jm kafka producer
      */
     public JMKafkaProducer withObjectMapper(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;

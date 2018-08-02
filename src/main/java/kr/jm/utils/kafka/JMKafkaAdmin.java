@@ -1,5 +1,16 @@
 package kr.jm.utils.kafka;
 
+import kafka.admin.AdminUtils;
+import kafka.admin.RackAwareMode;
+import kafka.utils.ZkUtils;
+import kr.jm.utils.exception.JMExceptionManager;
+import kr.jm.utils.helper.JMLog;
+import kr.jm.utils.helper.JMThread;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.common.PartitionInfo;
+import org.apache.kafka.common.serialization.Serdes;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -7,43 +18,39 @@ import java.util.Properties;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import kafka.admin.RackAwareMode;
-import kr.jm.utils.helper.JMThread;
-import org.apache.kafka.clients.consumer.KafkaConsumer;
-import org.apache.kafka.common.PartitionInfo;
-
-import kafka.admin.AdminUtils;
-import kafka.utils.ZkUtils;
-import kr.jm.utils.exception.JMExceptionManager;
-import kr.jm.utils.helper.JMLog;
-
 /**
- * The type Jm output admin.
+ * The type Jm kafka admin.
  */
 public class JMKafkaAdmin {
     private static final org.slf4j.Logger log =
             org.slf4j.LoggerFactory.getLogger(JMKafkaAdmin.class);
     private String zookeeperConnect;
-    private Properties topicProperties;
+    private Properties topicConsumerProperties;
     private int sessionTimeoutMs = 3 * 1000;
     private int connectionTimeoutMs = 3 * 1000;
     private boolean isSecureKafkaCluster = false;
 
     /**
-     * Instantiates a new Jm output admin.
+     * Instantiates a new Jm kafka admin.
      *
      * @param zookeeperConnect the zookeeper connect
      * @param bootstrapServers the bootstrap servers
      */
     public JMKafkaAdmin(String zookeeperConnect, String bootstrapServers) {
         this.zookeeperConnect = zookeeperConnect;
-        this.topicProperties = new Properties();
-        this.topicProperties.put("bootstrap.servers", bootstrapServers);
-        this.topicProperties.put("group.id", "jmKafkaAdmin");
-        this.topicProperties.put("key.deserializer",
-                "org.apache.output.common.serialization.StringDeserializer");
-        this.topicProperties.put("value.deserializer",
-                "org.apache.output.common.serialization.StringDeserializer");
+        this.topicConsumerProperties = new Properties();
+        this.topicConsumerProperties
+                .put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+        this.topicConsumerProperties
+                .put(ConsumerConfig.GROUP_ID_CONFIG, "jmKafkaAdmin");
+        String deserializer =
+                Serdes.String().deserializer().getClass().getName();
+        this.topicConsumerProperties
+                .put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
+                        deserializer);
+        this.topicConsumerProperties
+                .put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
+                        deserializer);
     }
 
     private ZkUtils getZkUtils() {
@@ -137,7 +144,7 @@ public class JMKafkaAdmin {
     }
 
     private KafkaConsumer<String, String> getTopicConsumer() {
-        return new KafkaConsumer<>(topicProperties);
+        return new KafkaConsumer<>(topicConsumerProperties);
     }
 
     /**
@@ -215,7 +222,7 @@ public class JMKafkaAdmin {
     }
 
     /**
-     * Is secure output cluster boolean.
+     * Is secure kafka cluster boolean.
      *
      * @return the boolean
      */
@@ -224,9 +231,9 @@ public class JMKafkaAdmin {
     }
 
     /**
-     * Sets secure output cluster.
+     * Sets secure kafka cluster.
      *
-     * @param isSecureKafkaCluster the is secure output cluster
+     * @param isSecureKafkaCluster the is secure kafka cluster
      */
     public void setSecureKafkaCluster(boolean isSecureKafkaCluster) {
         this.isSecureKafkaCluster = isSecureKafkaCluster;
