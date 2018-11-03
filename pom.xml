@@ -35,7 +35,7 @@
         <java.version>1.8</java.version>
         <slf4j.version>1.7.25</slf4j.version>
         <junit.version>4.12</junit.version>
-        <jmlab-utils-java8.version>0.1.93</jmlab-utils-java8.version>
+        <jmlab-utils-java8.version>0.1.94</jmlab-utils-java8.version>
         <kafka.version>1.1.1</kafka.version>
     </properties>
 
