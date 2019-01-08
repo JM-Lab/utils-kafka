@@ -19,7 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.*;
 import static kr.jm.utils.helper.JMLambda.getSelf;
 import static org.junit.Assert.assertEquals;
 
@@ -55,7 +55,6 @@ public class JMKafkaStreamsTest {
 
     /**
      * Sets up.
-     *
      */
     @Before
     public void setUp() {
@@ -68,7 +67,8 @@ public class JMKafkaStreamsTest {
         this.zooKeeper =
                 new JMZookeeperServer(OS.getAvailableLocalPort()).start();
         this.kafkaServer =
-                new JMKafkaServer(zooKeeper.getZookeeperConnect()).start();
+                new JMKafkaServer.Builder(zooKeeper.getZookeeperConnect())
+                        .build().start();
         JMThread.sleep(3000);
         this.bootstrapServer = kafkaServer.getKafkaServerConnect();
         this.kafkaProducer = new JMKafkaProducer(bootstrapServer)
@@ -77,7 +77,6 @@ public class JMKafkaStreamsTest {
 
     /**
      * Tear down.
-     *
      */
     @After
     public void tearDown() {
@@ -95,7 +94,6 @@ public class JMKafkaStreamsTest {
 
     /**
      * Test jm kafka streams.
-     *
      */
     @Test
     public void testJMKafkaStreams() {

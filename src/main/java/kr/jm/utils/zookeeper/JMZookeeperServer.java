@@ -95,6 +95,7 @@ public class JMZookeeperServer extends ZooKeeperServerMain {
         properties.setProperty("tickTime", String.valueOf(tickTime));
         properties.setProperty("dataDir", dataDir.getAbsolutePath());
         properties.setProperty("clientPort", String.valueOf(port));
+        properties.setProperty("clientPortAddress", OS.getIp());
     }
 
     /**
@@ -136,7 +137,7 @@ public class JMZookeeperServer extends ZooKeeperServerMain {
             zookeeperThreadService.shutdown();
             zookeeperThreadService.awaitTermination(10, TimeUnit.SECONDS);
         } catch (Exception e) {
-            JMExceptionManager.logException(log, e, "stop",
+            JMExceptionManager.handleException(log, e, "stop",
                     zookeeperThreadService.shutdownNow());
         }
         log.info("shutdown completely Over {} ms !!!",

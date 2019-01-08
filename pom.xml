@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>kr.jmlab</groupId>
     <artifactId>jmlab-utils-kafka</artifactId>
-    <version>${kafka.version}</version>
+    <version>${kafka.version}-SNAPSHOT</version>
     <name>JMLab-Utils-Kafka</name>
     <description>JMLab Utility Libraries For Kafka</description>
     <url>https://github.com/JM-Lab/utils-kafka</url>
@@ -35,8 +35,8 @@
         <java.version>1.8</java.version>
         <slf4j.version>1.7.25</slf4j.version>
         <junit.version>4.12</junit.version>
-        <jmlab-utils-java8.version>0.1.94</jmlab-utils-java8.version>
-        <kafka.version>1.1.1</kafka.version>
+        <jmlab-utils-java8.version>0.1.95-SNAPSHOT</jmlab-utils-java8.version>
+        <kafka.version>2.1.0</kafka.version>
     </properties>
 
     <build>

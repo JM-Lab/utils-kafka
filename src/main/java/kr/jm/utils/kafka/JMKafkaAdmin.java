@@ -1,8 +1,8 @@
 package kr.jm.utils.kafka;
 
-import kafka.admin.AdminUtils;
 import kafka.admin.RackAwareMode;
-import kafka.utils.ZkUtils;
+import kafka.zk.AdminZkClient;
+import kafka.zk.KafkaZkClient;
 import kr.jm.utils.exception.JMExceptionManager;
 import kr.jm.utils.helper.JMLog;
 import kr.jm.utils.helper.JMThread;
@@ -10,6 +10,7 @@ import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.PartitionInfo;
 import org.apache.kafka.common.serialization.Serdes;
+import org.apache.kafka.common.utils.Time;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,28 +54,31 @@ public class JMKafkaAdmin {
                         deserializer);
     }
 
-    private ZkUtils getZkUtils() {
-        return ZkUtils.apply(zookeeperConnect, sessionTimeoutMs,
-                connectionTimeoutMs, isSecureKafkaCluster);
+    private KafkaZkClient getKafkaZkClient() {
+        return KafkaZkClient
+                .apply(zookeeperConnect, isSecureKafkaCluster, sessionTimeoutMs,
+                        connectionTimeoutMs, 10, Time.SYSTEM, "myGroup",
+                        "myType");
     }
 
-    private <R> R operationFunction(Function<ZkUtils, R> operationFunction,
+    private <R> R operationFunction(
+            Function<AdminZkClient, R> operationFunction,
             String methodName, Object... params) {
         JMLog.info(log, methodName, params);
-        ZkUtils zkUtils = null;
+        KafkaZkClient kafkaZkClient = null;
         try {
-            zkUtils = getZkUtils();
-            return operationFunction.apply(zkUtils);
+            kafkaZkClient = getKafkaZkClient();
+            return operationFunction.apply(new AdminZkClient(kafkaZkClient));
         } catch (Exception e) {
             return JMExceptionManager.handleExceptionAndReturnNull(log, e,
                     methodName, params);
         } finally {
-            if (zkUtils != null)
-                zkUtils.close();
+            if (kafkaZkClient != null)
+                kafkaZkClient.close();
         }
     }
 
-    private void operation(Consumer<ZkUtils> operationConsumer,
+    private void operation(Consumer<AdminZkClient> operationConsumer,
             String methodName, Object... params) {
         operationFunction(zkUtils -> {
             operationConsumer.accept(zkUtils);
@@ -93,10 +97,9 @@ public class JMKafkaAdmin {
      */
     public void createTopic(String topic, int partitions, int replication,
             Properties topicProperties) {
-        operation(
-                zkUtils -> AdminUtils.createTopic(zkUtils, topic, partitions,
-                        replication, topicProperties,
-                        RackAwareMode.Enforced$.MODULE$),
+        operation(adminZkClient -> adminZkClient
+                        .createTopic(topic, partitions, replication, topicProperties,
+                                RackAwareMode.Enforced$.MODULE$),
                 "createTopic", topic, partitions, replication, topicProperties);
     }
 
@@ -118,7 +121,7 @@ public class JMKafkaAdmin {
      */
     public void deleteTopic(String topic) {
         // if delete.topic.enable=true
-        operation(zkUtils -> AdminUtils.deleteTopic(zkUtils, topic),
+        operation(adminZkClient -> adminZkClient.deleteTopic(topic),
                 "deleteTopic", topic);
     }
 
@@ -129,9 +132,7 @@ public class JMKafkaAdmin {
      * @return the boolean
      */
     public boolean topicExists(String topic) {
-        return operationFunction(
-                zkUtils -> AdminUtils.topicExists(zkUtils, topic),
-                "topicExists", topic);
+        return getKafkaZkClient().topicExists(topic);
     }
 
     /**

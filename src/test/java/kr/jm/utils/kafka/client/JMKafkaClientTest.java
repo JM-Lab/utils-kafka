@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.LongAdder;
 
-import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.*;
 import static kr.jm.utils.helper.JMThread.sleep;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -40,7 +40,6 @@ public class JMKafkaClientTest {
 
     /**
      * Sets up.
-     *
      */
     @Before
     public void setUp() {
@@ -53,9 +52,8 @@ public class JMKafkaClientTest {
         this.embeddedZookeeper =
                 new JMZookeeperServer(OS.getAvailableLocalPort()).start();
         String zookeeperConnect = this.embeddedZookeeper.getZookeeperConnect();
-        this.kafkaServer =
-                new JMKafkaServer(zookeeperConnect, OS.getAvailableLocalPort())
-                        .start();
+        this.kafkaServer = new JMKafkaServer.Builder(zookeeperConnect)
+                .serverPort(OS.getAvailableLocalPort()).build().start();
         sleep(3000);
         this.bootstrapServer = kafkaServer.getKafkaServerConnect();
         this.kafkaProducer = new JMKafkaProducer(bootstrapServer)
@@ -85,7 +83,6 @@ public class JMKafkaClientTest {
 
     /**
      * Test start.
-     *
      */
     @Test
     public final void testStart() {

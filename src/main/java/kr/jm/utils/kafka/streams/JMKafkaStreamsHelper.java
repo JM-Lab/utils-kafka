@@ -8,7 +8,11 @@ import kr.jm.utils.helper.JMLambda;
 import kr.jm.utils.helper.JMLog;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.Serdes;
-import org.apache.kafka.streams.*;
+import org.apache.kafka.streams.KafkaStreams;
+import org.apache.kafka.streams.StreamsBuilder;
+import org.apache.kafka.streams.StreamsConfig;
+import org.apache.kafka.streams.Topology;
+import org.apache.kafka.streams.kstream.Consumed;
 import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.kstream.KTable;
 
@@ -328,7 +332,7 @@ public class JMKafkaStreamsHelper {
         KafkaStreams kafkaStreams =
                 new KafkaStreams(topology, kafkaStreamsProperties);
         kafkaStreams.setUncaughtExceptionHandler((t, e) -> JMExceptionManager
-                .logException(log, e, "uncaughtException", t));
+                .handleException(log, e, "uncaughtException", t));
         return kafkaStreams;
     }
 

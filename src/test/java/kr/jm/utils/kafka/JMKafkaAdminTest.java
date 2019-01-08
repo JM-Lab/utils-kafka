@@ -39,11 +39,11 @@ public class JMKafkaAdminTest {
         this.zooKeeper.start();
         JMThread.sleep(3000);
         String zookeeperConnect = zooKeeper.getZookeeperConnect();
-        Properties brokerProperties =
-                new JMKafkaServer(zookeeperConnect, OS.getAvailableLocalPort())
-                        .getKafkaServerProperties();
-        brokerProperties.setProperty("delete.topic.enable", "true");
-        this.jmKafkaServer = new JMKafkaServer(brokerProperties).start();
+        this.jmKafkaServer = new JMKafkaServer.Builder(zookeeperConnect)
+                .serverPort(OS.getAvailableLocalPort())
+                .kafkaServerProperties(new Properties() {{
+                    setProperty("delete.topic.enable", "true");
+                }}).build().start();
         JMThread.sleep(3000);
         this.jmKafkaAdmin = new JMKafkaAdmin(zookeeperConnect,
                 jmKafkaServer.getKafkaServerConnect());
