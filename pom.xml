@@ -33,10 +33,10 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>11</java.version>
-        <slf4j.version>1.7.26</slf4j.version>
+        <slf4j.version>1.7.28</slf4j.version>
         <junit.version>4.12</junit.version>
         <jmlab-utils-java8.version>0.1.95</jmlab-utils-java8.version>
-        <kafka.version>2.1.1</kafka.version>
+        <kafka.version>2.2.1</kafka.version>
     </properties>
 
     <build>
