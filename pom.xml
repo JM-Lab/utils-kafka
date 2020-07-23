@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>kr.jmlab</groupId>
     <artifactId>jmlab-utils-kafka</artifactId>
-    <version>${kafka.version}</version>
+    <version>2.4.1</version>
     <name>JMLab-Utils-Kafka</name>
     <description>JMLab Utility Libraries For Kafka</description>
     <url>https://github.com/JM-Lab/utils-kafka</url>
@@ -32,21 +32,23 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <java.version>11</java.version>
-        <slf4j.version>1.7.26</slf4j.version>
-        <junit.version>4.12</junit.version>
+        <java.version>8</java.version>
+        <slf4j.version>1.7.30</slf4j.version>
+        <junit.version>4.13</junit.version>
         <jmlab-utils-java8.version>0.1.95</jmlab-utils-java8.version>
-        <kafka.version>2.1.1</kafka.version>
+        <kafka.version>${project.version}</kafka.version>
     </properties>
 
     <build>
         <plugins>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.8.1</version>
                 <configuration>
                     <source>${java.version}</source>
                     <target>${java.version}</target>
+                    <release>${java.version}</release>
                 </configuration>
             </plugin>
             <plugin>
@@ -83,6 +85,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-gpg-plugin</artifactId>
+                <version>1.6</version>
                 <executions>
                     <execution>
                         <id>sign-artifacts</id>

@@ -11,6 +11,7 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.PartitionInfo;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.common.utils.Time;
+import scala.Option;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,8 +24,7 @@ import java.util.function.Function;
  * The type Jm kafka admin.
  */
 public class JMKafkaAdmin {
-    private static final org.slf4j.Logger log =
-            org.slf4j.LoggerFactory.getLogger(JMKafkaAdmin.class);
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(JMKafkaAdmin.class);
     private String zookeeperConnect;
     private Properties topicConsumerProperties;
     private int sessionTimeoutMs = 3 * 1000;
@@ -40,51 +40,45 @@ public class JMKafkaAdmin {
     public JMKafkaAdmin(String zookeeperConnect, String bootstrapServers) {
         this.zookeeperConnect = zookeeperConnect;
         this.topicConsumerProperties = new Properties();
-        this.topicConsumerProperties
-                .put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-        this.topicConsumerProperties
-                .put(ConsumerConfig.GROUP_ID_CONFIG, "jmKafkaAdmin");
-        String deserializer =
-                Serdes.String().deserializer().getClass().getName();
-        this.topicConsumerProperties
-                .put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
-                        deserializer);
-        this.topicConsumerProperties
-                .put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
-                        deserializer);
+        this.topicConsumerProperties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+        this.topicConsumerProperties.put(ConsumerConfig.GROUP_ID_CONFIG, "jmKafkaAdmin");
+        String deserializer = Serdes.String().deserializer().getClass().getName();
+        this.topicConsumerProperties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, deserializer);
+        this.topicConsumerProperties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, deserializer);
     }
 
     private KafkaZkClient getKafkaZkClient() {
         return KafkaZkClient
-                .apply(zookeeperConnect, isSecureKafkaCluster, sessionTimeoutMs,
-                        connectionTimeoutMs, 10, Time.SYSTEM, "myGroup",
-                        "myType");
+                .apply(zookeeperConnect, isSecureKafkaCluster, sessionTimeoutMs, connectionTimeoutMs, 10, Time.SYSTEM,
+                        "jmKafkaGroup", "jmKafkaType", Option.empty());
     }
 
-    private <R> R operationFunction(
-            Function<AdminZkClient, R> operationFunction,
-            String methodName, Object... params) {
+    private <R> R operationFunction(Function<AdminZkClient, R> operationFunction, String methodName, Object... params) {
         JMLog.info(log, methodName, params);
         KafkaZkClient kafkaZkClient = null;
         try {
             kafkaZkClient = getKafkaZkClient();
             return operationFunction.apply(new AdminZkClient(kafkaZkClient));
         } catch (Exception e) {
-            return JMExceptionManager.handleExceptionAndReturnNull(log, e,
-                    methodName, params);
+            return JMExceptionManager.handleExceptionAndReturnNull(log, e, methodName, params);
         } finally {
             if (kafkaZkClient != null)
                 kafkaZkClient.close();
         }
     }
 
-    private void operation(Consumer<AdminZkClient> operationConsumer,
-            String methodName, Object... params) {
-        operationFunction(zkUtils -> {
-            operationConsumer.accept(zkUtils);
+    private void operation(Consumer<AdminZkClient> operationConsumer, String methodName, Object... params) {
+        JMLog.info(log, methodName, params);
+        KafkaZkClient kafkaZkClient = null;
+        try {
+            operationConsumer.accept(new AdminZkClient(kafkaZkClient = getKafkaZkClient()));
             JMThread.sleep(1000);
-            return null;
-        }, methodName, params);
+        } catch (Exception e) {
+            JMExceptionManager.handleException(log, e, methodName, params);
+        } finally {
+            if (kafkaZkClient != null)
+                kafkaZkClient.close();
+        }
     }
 
     /**
