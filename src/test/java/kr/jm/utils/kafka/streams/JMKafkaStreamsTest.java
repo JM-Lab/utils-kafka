@@ -1,11 +1,10 @@
 package kr.jm.utils.kafka.streams;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import kr.jm.utils.JMStream;
+import kr.jm.utils.JMThread;
 import kr.jm.utils.enums.OS;
 import kr.jm.utils.helper.JMPath;
-import kr.jm.utils.helper.JMPathOperation;
-import kr.jm.utils.helper.JMStream;
-import kr.jm.utils.helper.JMThread;
 import kr.jm.utils.kafka.JMKafkaServer;
 import kr.jm.utils.kafka.client.JMKafkaProducer;
 import kr.jm.utils.zookeeper.JMZookeeperServer;
@@ -18,9 +17,9 @@ import org.junit.Test;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 
 import static java.util.stream.Collectors.*;
-import static kr.jm.utils.helper.JMLambda.getSelf;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -39,17 +38,19 @@ public class JMKafkaStreamsTest {
 
     private String applicationId = "testKafkaStream";
     private KafkaStreams kafkaStreams;
+    private JMPath jmPath;
 
     /**
      * Instantiates a new Jm kafka streams test.
      */
     public JMKafkaStreamsTest() {
-        Optional.of(JMPath.getPath(JMZookeeperServer.DEFAULT_ZOOKEEPER_DIR))
-                .filter(JMPath::exists)
-                .ifPresent(JMPathOperation::deleteDir);
-        Optional.of(JMPath.getPath(JMKafkaServer.DEFAULT_KAFKA_LOG))
-                .filter(JMPath::exists)
-                .ifPresent(JMPathOperation::deleteDir);
+        this.jmPath = JMPath.getInstance();
+        Optional.of(jmPath.getPath(JMZookeeperServer.DEFAULT_ZOOKEEPER_DIR))
+                .filter(jmPath::exists)
+                .ifPresent(jmPath::deleteDir);
+        Optional.of(jmPath.getPath(JMKafkaServer.DEFAULT_KAFKA_LOG))
+                .filter(jmPath::exists)
+                .ifPresent(jmPath::deleteDir);
         JMThread.sleep(1000);
     }
 
@@ -58,12 +59,12 @@ public class JMKafkaStreamsTest {
      */
     @Before
     public void setUp() {
-        Optional.of(JMPath.getPath(JMZookeeperServer.DEFAULT_ZOOKEEPER_DIR))
-                .filter(JMPath::exists)
-                .ifPresent(JMPathOperation::deleteDir);
-        Optional.of(JMPath.getPath(JMKafkaServer.DEFAULT_KAFKA_LOG))
-                .filter(JMPath::exists)
-                .ifPresent(JMPathOperation::deleteDir);
+        Optional.of(jmPath.getPath(JMZookeeperServer.DEFAULT_ZOOKEEPER_DIR))
+                .filter(jmPath::exists)
+                .ifPresent(jmPath::deleteDir);
+        Optional.of(jmPath.getPath(JMKafkaServer.DEFAULT_KAFKA_LOG))
+                .filter(jmPath::exists)
+                .ifPresent(jmPath::deleteDir);
         this.zooKeeper =
                 new JMZookeeperServer(OS.getAvailableLocalPort()).start();
         this.kafkaServer =
@@ -84,12 +85,12 @@ public class JMKafkaStreamsTest {
         kafkaProducer.close();
         kafkaServer.stop();
         zooKeeper.stop();
-        Optional.of(JMPath.getPath(JMZookeeperServer.DEFAULT_ZOOKEEPER_DIR))
-                .filter(JMPath::exists)
-                .ifPresent(JMPathOperation::deleteDir);
-        Optional.of(JMPath.getPath(JMKafkaServer.DEFAULT_KAFKA_LOG))
-                .filter(JMPath::exists)
-                .ifPresent(JMPathOperation::deleteDir);
+        Optional.of(jmPath.getPath(JMZookeeperServer.DEFAULT_ZOOKEEPER_DIR))
+                .filter(jmPath::exists)
+                .ifPresent(jmPath::deleteDir);
+        Optional.of(jmPath.getPath(JMKafkaServer.DEFAULT_KAFKA_LOG))
+                .filter(jmPath::exists)
+                .ifPresent(jmPath::deleteDir);
     }
 
     /**
@@ -98,7 +99,7 @@ public class JMKafkaStreamsTest {
     @Test
     public void testJMKafkaStreams() {
         Map<Integer, String> testMap = JMStream.numberRangeClosed(1, 500, 1)
-                .boxed().collect(toMap(getSelf(), i -> "Stream-" + i));
+                .boxed().collect(toMap(Function.identity(), i -> "Stream-" + i));
         kafkaProducer.sendJsonStringSync(testMap);
         Map<Integer, String> streamResultMap = new HashMap<>();
         Topology topology = JMKafkaStreamsHelper.buildKStreamTopology(

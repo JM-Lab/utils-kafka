@@ -1,10 +1,10 @@
 package kr.jm.utils.kafka.client;
 
-import kr.jm.utils.datastructure.JMCollections;
+import kr.jm.utils.JMCollections;
+import kr.jm.utils.JMThread;
 import kr.jm.utils.enums.OS;
-import kr.jm.utils.exception.JMExceptionManager;
+import kr.jm.utils.exception.JMException;
 import kr.jm.utils.helper.JMLog;
-import kr.jm.utils.helper.JMThread;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -164,7 +164,7 @@ public class JMKafkaConsumer extends KafkaConsumer<String, String> {
             }
         } catch (Exception e) {
             if (isRunning())
-                JMExceptionManager.handleExceptionAndThrowRuntimeEx(log, e,
+                JMException.handleExceptionAndThrowRuntimeEx(log, e,
                         "consume#WakeupException");
         } finally {
             close();
@@ -178,7 +178,7 @@ public class JMKafkaConsumer extends KafkaConsumer<String, String> {
         try {
             consumerRecords.forEach(recordConsumer);
         } catch (Exception e) {
-            JMExceptionManager.handleException(log, e, "handleConsumerRecords",
+            JMException.handleException(log, e, "handleConsumerRecords",
                     consumerRecords);
         }
     }

@@ -3,8 +3,7 @@ package kr.jm.utils.kafka.streams;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import kr.jm.utils.exception.JMExceptionManager;
-import kr.jm.utils.helper.JMLambda;
+import kr.jm.utils.exception.JMException;
 import kr.jm.utils.helper.JMLog;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.Serdes;
@@ -25,28 +24,22 @@ import java.util.function.Consumer;
  * The type Jm kafka streams helper.
  */
 public class JMKafkaStreamsHelper {
-    private static final org.slf4j.Logger log =
-            org.slf4j.LoggerFactory.getLogger(JMKafkaStreamsHelper.class);
-    private static final Consumed<String, String>
-            STRING_STRING_CONSUMED = Consumed
-            .with(Serdes.String(), Serdes.String());
-    private static ObjectMapper objectMapper = new ObjectMapper()
-            .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-            .enable(DeserializationFeature
-                    .READ_UNKNOWN_ENUM_VALUES_AS_NULL);
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(JMKafkaStreamsHelper.class);
+    private static final Consumed<String, String> STRING_STRING_CONSUMED =
+            Consumed.with(Serdes.String(), Serdes.String());
+    private static ObjectMapper objectMapper =
+            new ObjectMapper().disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                    .enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL);
 
 
-    private static <T> Optional<T> buildJsonStringAsOpt(
-            ObjectMapper objectMapper, String jsonString,
+    private static <T> Optional<T> buildJsonStringAsOpt(ObjectMapper objectMapper, String jsonString,
             TypeReference<T> typeReference) {
         try {
             if (objectMapper == null)
                 objectMapper = JMKafkaStreamsHelper.objectMapper;
-            return Optional.of(objectMapper
-                    .readValue(jsonString.getBytes(), typeReference));
+            return Optional.of(objectMapper.readValue(jsonString.getBytes(), typeReference));
         } catch (Exception e) {
-            return JMExceptionManager.handleExceptionAndReturnEmptyOptional(log,
-                    e, "buildJsonStringAsOpt", jsonString);
+            return JMException.handleExceptionAndReturnEmptyOptional(log, e, "buildJsonStringAsOpt", jsonString);
         }
     }
 
@@ -59,12 +52,9 @@ public class JMKafkaStreamsHelper {
      * @param topics             the topics
      * @return the topology
      */
-    public static <T> Topology buildKStreamTopologyWithOpt(
-            Consumer<KStream<String, Optional<T>>> additionalTopology,
+    public static <T> Topology buildKStreamTopologyWithOpt(Consumer<KStream<String, Optional<T>>> additionalTopology,
             TypeReference<T> typeReference, String... topics) {
-        return buildKStreamTopologyWithOpt(additionalTopology, null,
-                typeReference,
-                topics);
+        return buildKStreamTopologyWithOpt(additionalTopology, null, typeReference, topics);
     }
 
     /**
@@ -77,13 +67,10 @@ public class JMKafkaStreamsHelper {
      * @param topics             the topics
      * @return the topology
      */
-    public static <T> Topology buildKStreamTopologyWithOpt(
-            Consumer<KStream<String, Optional<T>>> additionalTopology,
-            ObjectMapper objectMapper, TypeReference<T> typeReference,
-            String... topics) {
+    public static <T> Topology buildKStreamTopologyWithOpt(Consumer<KStream<String, Optional<T>>> additionalTopology,
+            ObjectMapper objectMapper, TypeReference<T> typeReference, String... topics) {
         return buildTopology(streamsBuilder -> additionalTopology
-                .accept(buildKStreamWithOpt(streamsBuilder, objectMapper,
-                        typeReference, topics)));
+                .accept(buildKStreamWithOpt(streamsBuilder, objectMapper, typeReference, topics)));
     }
 
     /**
@@ -95,9 +82,8 @@ public class JMKafkaStreamsHelper {
      * @param topics         the topics
      * @return the k stream
      */
-    public static <T> KStream<String, Optional<T>> buildKStreamWithOpt(
-            StreamsBuilder streamsBuilder, TypeReference<T> typeReference,
-            String... topics) {
+    public static <T> KStream<String, Optional<T>> buildKStreamWithOpt(StreamsBuilder streamsBuilder,
+            TypeReference<T> typeReference, String... topics) {
         return buildKStreamWithOpt(streamsBuilder, null, typeReference, topics);
     }
 
@@ -111,12 +97,10 @@ public class JMKafkaStreamsHelper {
      * @param topics         the topics
      * @return the k stream
      */
-    public static <T> KStream<String, Optional<T>> buildKStreamWithOpt(
-            StreamsBuilder streamsBuilder, ObjectMapper objectMapper,
-            TypeReference<T> typeReference, String... topics) {
-        return buildKStream(streamsBuilder, topics).mapValues(
-                value -> buildJsonStringAsOpt(objectMapper, value,
-                        typeReference));
+    public static <T> KStream<String, Optional<T>> buildKStreamWithOpt(StreamsBuilder streamsBuilder,
+            ObjectMapper objectMapper, TypeReference<T> typeReference, String... topics) {
+        return buildKStream(streamsBuilder, topics)
+                .mapValues(value -> buildJsonStringAsOpt(objectMapper, value, typeReference));
     }
 
     /**
@@ -126,10 +110,8 @@ public class JMKafkaStreamsHelper {
      * @param topics         the topics
      * @return the k stream
      */
-    public static KStream<String, String> buildKStream(
-            StreamsBuilder streamsBuilder, String[] topics) {
-        return streamsBuilder
-                .stream(Arrays.asList(topics), STRING_STRING_CONSUMED);
+    public static KStream<String, String> buildKStream(StreamsBuilder streamsBuilder, String[] topics) {
+        return streamsBuilder.stream(Arrays.asList(topics), STRING_STRING_CONSUMED);
     }
 
     /**
@@ -141,11 +123,9 @@ public class JMKafkaStreamsHelper {
      * @param topics             the topics
      * @return the topology
      */
-    public static <T> Topology buildKStreamTopology(
-            Consumer<KStream<String, T>> additionalTopology,
+    public static <T> Topology buildKStreamTopology(Consumer<KStream<String, T>> additionalTopology,
             TypeReference<T> typeReference, String... topics) {
-        return buildKStreamTopology(additionalTopology, null, typeReference,
-                topics);
+        return buildKStreamTopology(additionalTopology, null, typeReference, topics);
     }
 
     /**
@@ -158,15 +138,11 @@ public class JMKafkaStreamsHelper {
      * @param topics             the topics
      * @return the topology
      */
-    public static <T> Topology buildKStreamTopology(
-            Consumer<KStream<String, T>> additionalTopology,
-            ObjectMapper objectMapper, TypeReference<T> typeReference,
-            String... topics) {
+    public static <T> Topology buildKStreamTopology(Consumer<KStream<String, T>> additionalTopology,
+            ObjectMapper objectMapper, TypeReference<T> typeReference, String... topics) {
         return buildTopology(streamsBuilder -> additionalTopology
-                .accept(buildKStreamWithOpt(streamsBuilder, objectMapper,
-                        typeReference, topics)
-                        .filter(JMKafkaStreamsHelper::logAndFilter)
-                        .mapValues(Optional::get)));
+                .accept(buildKStreamWithOpt(streamsBuilder, objectMapper, typeReference, topics)
+                        .filter(JMKafkaStreamsHelper::logAndFilter).mapValues(Optional::get)));
     }
 
     /**
@@ -176,16 +152,15 @@ public class JMKafkaStreamsHelper {
      * @param streamsBuilderConsumer the streams builder consumer
      * @return the topology
      */
-    public static <T> Topology buildTopology(
-            Consumer<StreamsBuilder> streamsBuilderConsumer) {
+    public static <T> Topology buildTopology(Consumer<StreamsBuilder> streamsBuilderConsumer) {
         StreamsBuilder streamsBuilder = new StreamsBuilder();
         streamsBuilderConsumer.accept(streamsBuilder);
         return streamsBuilder.build();
     }
 
     private static <T> boolean logAndFilter(String key, Optional<T> opt) {
-        return JMLambda.consumeAndGetSelf(opt.isPresent(), b -> JMLambda
-                .runIfTrue(b, () -> JMLog.warn(log, "logAndFilter", key, opt)));
+        opt.ifPresent(t -> JMLog.warn(log, "logAndFilter", key, t));
+        return opt.isPresent();
     }
 
     /**
@@ -197,11 +172,9 @@ public class JMKafkaStreamsHelper {
      * @param topic              the topic
      * @return the topology
      */
-    public static <T> Topology buildTableTopologyWithOpt(
-            Consumer<KTable<String, Optional<T>>> additionalTopology,
+    public static <T> Topology buildTableTopologyWithOpt(Consumer<KTable<String, Optional<T>>> additionalTopology,
             TypeReference<T> typeReference, String topic) {
-        return buildTableTopologyWithOpt(additionalTopology, null,
-                typeReference, topic);
+        return buildTableTopologyWithOpt(additionalTopology, null, typeReference, topic);
     }
 
     /**
@@ -214,13 +187,10 @@ public class JMKafkaStreamsHelper {
      * @param topic              the topic
      * @return the topology
      */
-    public static <T> Topology buildTableTopologyWithOpt(
-            Consumer<KTable<String, Optional<T>>> additionalTopology,
-            ObjectMapper objectMapper,
-            TypeReference<T> typeReference, String topic) {
-        return buildTopology(streamsBuilder -> additionalTopology.accept
-                (buildKTableWithOpt(streamsBuilder, objectMapper, typeReference,
-                        topic)));
+    public static <T> Topology buildTableTopologyWithOpt(Consumer<KTable<String, Optional<T>>> additionalTopology,
+            ObjectMapper objectMapper, TypeReference<T> typeReference, String topic) {
+        return buildTopology(streamsBuilder -> additionalTopology
+                .accept(buildKTableWithOpt(streamsBuilder, objectMapper, typeReference, topic)));
     }
 
     /**
@@ -232,9 +202,8 @@ public class JMKafkaStreamsHelper {
      * @param topic          the topic
      * @return the k table
      */
-    public static <T> KTable<String, Optional<T>> buildKTableWithOpt(
-            StreamsBuilder streamsBuilder, TypeReference<T> typeReference,
-            String topic) {
+    public static <T> KTable<String, Optional<T>> buildKTableWithOpt(StreamsBuilder streamsBuilder,
+            TypeReference<T> typeReference, String topic) {
         return buildKTableWithOpt(streamsBuilder, null, typeReference, topic);
     }
 
@@ -248,12 +217,10 @@ public class JMKafkaStreamsHelper {
      * @param topic          the topic
      * @return the k table
      */
-    public static <T> KTable<String, Optional<T>> buildKTableWithOpt(
-            StreamsBuilder streamsBuilder, ObjectMapper objectMapper,
-            TypeReference<T> typeReference, String topic) {
+    public static <T> KTable<String, Optional<T>> buildKTableWithOpt(StreamsBuilder streamsBuilder,
+            ObjectMapper objectMapper, TypeReference<T> typeReference, String topic) {
         return streamsBuilder.table(topic, STRING_STRING_CONSUMED)
-                .mapValues(value -> buildJsonStringAsOpt(objectMapper, value,
-                        typeReference));
+                .mapValues(value -> buildJsonStringAsOpt(objectMapper, value, typeReference));
     }
 
     /**
@@ -265,11 +232,9 @@ public class JMKafkaStreamsHelper {
      * @param topic              the topic
      * @return the topology
      */
-    public static <T> Topology buildTableTopology(
-            Consumer<KTable<String, T>> additionalTopology,
+    public static <T> Topology buildTableTopology(Consumer<KTable<String, T>> additionalTopology,
             TypeReference<T> typeReference, String topic) {
-        return buildTableTopology(additionalTopology, null, typeReference,
-                topic);
+        return buildTableTopology(additionalTopology, null, typeReference, topic);
     }
 
     /**
@@ -282,15 +247,11 @@ public class JMKafkaStreamsHelper {
      * @param topic              the topic
      * @return the topology
      */
-    public static <T> Topology buildTableTopology(
-            Consumer<KTable<String, T>> additionalTopology,
-            ObjectMapper objectMapper,
-            TypeReference<T> typeReference, String topic) {
+    public static <T> Topology buildTableTopology(Consumer<KTable<String, T>> additionalTopology,
+            ObjectMapper objectMapper, TypeReference<T> typeReference, String topic) {
         return buildTopology(streamsBuilder -> additionalTopology
-                .accept(buildKTableWithOpt(streamsBuilder, objectMapper,
-                        typeReference, topic)
-                        .filter(JMKafkaStreamsHelper::logAndFilter)
-                        .mapValues(Optional::get)));
+                .accept(buildKTableWithOpt(streamsBuilder, objectMapper, typeReference, topic)
+                        .filter(JMKafkaStreamsHelper::logAndFilter).mapValues(Optional::get)));
     }
 
     /**
@@ -302,18 +263,15 @@ public class JMKafkaStreamsHelper {
      * @param topology         the topology
      * @return the kafka streams
      */
-    public static KafkaStreams buildKafkaStreams(boolean isLatest,
-            String bootstrapServers, String applicationId, Topology topology) {
+    public static KafkaStreams buildKafkaStreams(boolean isLatest, String bootstrapServers, String applicationId,
+            Topology topology) {
         return buildKafkaStreams(topology, new Properties() {
             {
                 put(StreamsConfig.APPLICATION_ID_CONFIG, applicationId);
                 put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-                put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG,
-                        isLatest ? "latest" : "earliest");
-                put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG,
-                        Serdes.String().getClass());
-                put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG,
-                        Serdes.String().getClass());
+                put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, isLatest ? "latest" : "earliest");
+                put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass());
+                put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.String().getClass());
             }
         });
     }
@@ -325,14 +283,10 @@ public class JMKafkaStreamsHelper {
      * @param kafkaStreamsProperties the kafka streams properties
      * @return the kafka streams
      */
-    public static KafkaStreams buildKafkaStreams(Topology topology,
-            Properties kafkaStreamsProperties) {
-        JMLog.info(log, "buildKafkaStreams", topology.describe(),
-                kafkaStreamsProperties);
-        KafkaStreams kafkaStreams =
-                new KafkaStreams(topology, kafkaStreamsProperties);
-        kafkaStreams.setUncaughtExceptionHandler((t, e) -> JMExceptionManager
-                .handleException(log, e, "uncaughtException", t));
+    public static KafkaStreams buildKafkaStreams(Topology topology, Properties kafkaStreamsProperties) {
+        JMLog.info(log, "buildKafkaStreams", topology.describe(), kafkaStreamsProperties);
+        KafkaStreams kafkaStreams = new KafkaStreams(topology, kafkaStreamsProperties);
+        kafkaStreams.setUncaughtExceptionHandler((t, e) -> JMException.handleException(log, e, "uncaughtException", t));
         return kafkaStreams;
     }
 
@@ -344,11 +298,9 @@ public class JMKafkaStreamsHelper {
      * @param topology         the topology
      * @return the kafka streams
      */
-    public static KafkaStreams buildKafkaStreamsWithStart(
-            String bootstrapServers, String applicationId, Topology topology) {
-        return startKafkaStream(
-                buildKafkaStreams(false, bootstrapServers, applicationId,
-                        topology));
+    public static KafkaStreams buildKafkaStreamsWithStart(String bootstrapServers, String applicationId,
+            Topology topology) {
+        return startKafkaStream(buildKafkaStreams(false, bootstrapServers, applicationId, topology));
     }
 
     /**
@@ -358,10 +310,8 @@ public class JMKafkaStreamsHelper {
      * @param topology               the topology
      * @return the kafka streams
      */
-    public static KafkaStreams buildKafkaStreamsWithStart(
-            Properties KafkaStreamsProperties, Topology topology) {
-        return startKafkaStream(
-                buildKafkaStreams(topology, KafkaStreamsProperties));
+    public static KafkaStreams buildKafkaStreamsWithStart(Properties KafkaStreamsProperties, Topology topology) {
+        return startKafkaStream(buildKafkaStreams(topology, KafkaStreamsProperties));
     }
 
     private static KafkaStreams startKafkaStream(KafkaStreams kafkaStreams) {

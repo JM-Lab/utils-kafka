@@ -1,4 +1,4 @@
-JMLab Utility Libraries For Kafka 2.4.x
+JMLab Utility Libraries For Kafka 2.5.x
 ========================================
 
 ## Useful Functions :
@@ -9,10 +9,10 @@ JMLab Utility Libraries For Kafka 2.4.x
 * **Kafka Streams Utility - JMKafkaStreamsHelper**
 
 ## version
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.jm-lab/jmlab-utils-kafka/badge.svg)](http://search.maven.org/#artifactdetails%7Ckr.jmlab%7Cjmlab-utils-kafka%7C2.4.1%7Cjar)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.jm-lab/jmlab-utils-kafka/badge.svg)](http://search.maven.org/#artifactdetails%7Ckr.jmlab%7Cjmlab-utils-kafka%7C2.5.1%7Cjar)
 
 ## Prerequisites:
-* Java 8 or later
+* Java 11 or later
 
 ## Installation
 
@@ -20,7 +20,7 @@ Checkout the source code:
 
     git clone https://github.com/JM-Lab/utils-kafka.git
     cd utils-kafka
-    git checkout -b 2.4.1 origin/2.4.1 
+    git checkout -b 2.5.1 origin/2.5.1 
     mvn install
 
 ## Usage
@@ -30,7 +30,7 @@ Set up pom.xml :
     <dependency>
 			<groupId>kr.jmlab</groupId>
 			<artifactId>jmlab-utils-kafka</artifactId>
-			<version>2.4.1</version>
+			<version>2.5.1</version>
 	</dependency>
     (...)
 

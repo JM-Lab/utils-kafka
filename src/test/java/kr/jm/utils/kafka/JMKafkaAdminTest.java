@@ -1,9 +1,8 @@
 package kr.jm.utils.kafka;
 
+import kr.jm.utils.JMThread;
 import kr.jm.utils.enums.OS;
 import kr.jm.utils.helper.JMPath;
-import kr.jm.utils.helper.JMPathOperation;
-import kr.jm.utils.helper.JMThread;
 import kr.jm.utils.zookeeper.JMZookeeperServer;
 import org.junit.After;
 import org.junit.Before;
@@ -23,18 +22,20 @@ public class JMKafkaAdminTest {
     private JMKafkaAdmin jmKafkaAdmin;
     private JMZookeeperServer zooKeeper;
     private JMKafkaServer jmKafkaServer;
+    private JMPath jmPath;
 
     /**
      * Sets up.
      */
     @Before
     public void setUp() {
-        Optional.of(JMPath.getPath(JMZookeeperServer.DEFAULT_ZOOKEEPER_DIR))
-                .filter(JMPath::exists)
-                .ifPresent(JMPathOperation::deleteDir);
-        Optional.of(JMPath.getPath(JMKafkaServer.DEFAULT_KAFKA_LOG))
-                .filter(JMPath::exists)
-                .ifPresent(JMPathOperation::deleteDir);
+        this.jmPath = JMPath.getInstance();
+        Optional.of(jmPath.getPath(JMZookeeperServer.DEFAULT_ZOOKEEPER_DIR))
+                .filter(jmPath::exists)
+                .ifPresent(jmPath::deleteDir);
+        Optional.of(jmPath.getPath(JMKafkaServer.DEFAULT_KAFKA_LOG))
+                .filter(jmPath::exists)
+                .ifPresent(jmPath::deleteDir);
         this.zooKeeper = new JMZookeeperServer();
         this.zooKeeper.start();
         JMThread.sleep(3000);
@@ -56,12 +57,12 @@ public class JMKafkaAdminTest {
     public void tearDown() {
         jmKafkaServer.stop();
         zooKeeper.stop();
-        Optional.of(JMPath.getPath(JMZookeeperServer.DEFAULT_ZOOKEEPER_DIR))
-                .filter(JMPath::exists)
-                .ifPresent(JMPathOperation::deleteDir);
-        Optional.of(JMPath.getPath(JMKafkaServer.DEFAULT_KAFKA_LOG))
-                .filter(JMPath::exists)
-                .ifPresent(JMPathOperation::deleteDir);
+        Optional.of(jmPath.getPath(JMZookeeperServer.DEFAULT_ZOOKEEPER_DIR))
+                .filter(jmPath::exists)
+                .ifPresent(jmPath::deleteDir);
+        Optional.of(jmPath.getPath(JMKafkaServer.DEFAULT_KAFKA_LOG))
+                .filter(jmPath::exists)
+                .ifPresent(jmPath::deleteDir);
     }
 
     /**

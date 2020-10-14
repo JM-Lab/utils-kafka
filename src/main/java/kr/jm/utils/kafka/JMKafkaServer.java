@@ -2,10 +2,10 @@ package kr.jm.utils.kafka;
 
 import kafka.server.KafkaServerStartable;
 import kr.jm.utils.enums.OS;
-import kr.jm.utils.exception.JMExceptionManager;
+import kr.jm.utils.exception.JMException;
 import kr.jm.utils.helper.JMLog;
-import kr.jm.utils.helper.JMString;
-import kr.jm.utils.helper.JMThread;
+import kr.jm.utils.JMString;
+import kr.jm.utils.JMThread;
 
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
@@ -28,15 +28,6 @@ public class JMKafkaServer {
     private Properties kafkaServerProperties;
     private ExecutorService kafkaBrokerThreadPool;
 
-    /**
-     * Instantiates a new Jm kafka server.
-     *
-     * @param zookeeperConnect              the zookeeper connect
-     * @param serverPort                    the server port
-     * @param logDir                        the log dir
-     * @param offsetsTopicReplicationFactor the offsets topic replication factor
-     * @param kafkaServerProperties         the kafka server properties
-     */
     private JMKafkaServer(String zookeeperConnect, String serverIp,
             int serverPort, String logDir, int offsetsTopicReplicationFactor,
             Properties kafkaServerProperties) {
@@ -80,7 +71,7 @@ public class JMKafkaServer {
                 kafkaBrokerThreadPool.awaitTermination(10, TimeUnit.SECONDS);
             }
         } catch (Exception e) {
-            JMExceptionManager.handleException(log, e, "stop",
+            JMException.handleException(log, e, "stop",
                     kafkaBrokerThreadPool.shutdownNow());
         } finally {
             if (kafkaServer != null)
@@ -126,6 +117,9 @@ public class JMKafkaServer {
         return this.kafkaServerProperties.getProperty(LOG_DIR);
     }
 
+    /**
+     * The type Builder.
+     */
     public static class Builder {
         private String zookeeperConnect;
         private String serverIp = OS.getIp();
@@ -134,37 +128,77 @@ public class JMKafkaServer {
         private int offsetsTopicReplicationFactor = 1;
         private Properties kafkaServerProperties = new Properties();
 
+        /**
+         * Instantiates a new Builder.
+         *
+         * @param zookeeperConnect the zookeeper connect
+         */
         public Builder(String zookeeperConnect) {
             this.zookeeperConnect = zookeeperConnect;
         }
 
+        /**
+         * Server ip builder.
+         *
+         * @param serverIp the server ip
+         * @return the builder
+         */
         public Builder serverIp(String serverIp) {
             this.serverIp = serverIp;
             return this;
         }
 
+        /**
+         * Log dir builder.
+         *
+         * @param logDir the log dir
+         * @return the builder
+         */
         public Builder logDir(String logDir) {
             this.logDir = logDir;
             return this;
         }
 
+        /**
+         * Offsets topic replication factor builder.
+         *
+         * @param offsetsTopicReplicationFactor the offsets topic replication factor
+         * @return the builder
+         */
         public Builder offsetsTopicReplicationFactor(
                 int offsetsTopicReplicationFactor) {
             this.offsetsTopicReplicationFactor = offsetsTopicReplicationFactor;
             return this;
         }
 
+        /**
+         * Server port builder.
+         *
+         * @param serverPort the server port
+         * @return the builder
+         */
         public Builder serverPort(int serverPort) {
             this.serverPort = serverPort;
             return this;
         }
 
+        /**
+         * Kafka server properties builder.
+         *
+         * @param kafkaServerProperties the kafka server properties
+         * @return the builder
+         */
         public Builder kafkaServerProperties(
                 Properties kafkaServerProperties) {
             this.kafkaServerProperties = kafkaServerProperties;
             return this;
         }
 
+        /**
+         * Build jm kafka server.
+         *
+         * @return the jm kafka server
+         */
         public JMKafkaServer build() {
             return new JMKafkaServer(zookeeperConnect, serverIp, serverPort,
                     logDir, offsetsTopicReplicationFactor,

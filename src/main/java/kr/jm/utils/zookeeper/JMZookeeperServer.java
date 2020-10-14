@@ -1,11 +1,11 @@
 package kr.jm.utils.zookeeper;
 
+import kr.jm.utils.JMString;
+import kr.jm.utils.JMThread;
 import kr.jm.utils.enums.OS;
-import kr.jm.utils.exception.JMExceptionManager;
+import kr.jm.utils.exception.JMException;
 import kr.jm.utils.helper.JMLog;
 import kr.jm.utils.helper.JMPath;
-import kr.jm.utils.helper.JMString;
-import kr.jm.utils.helper.JMThread;
 import org.apache.zookeeper.server.ServerConfig;
 import org.apache.zookeeper.server.ZooKeeperServerMain;
 import org.apache.zookeeper.server.quorum.QuorumPeerConfig;
@@ -77,7 +77,7 @@ public class JMZookeeperServer extends ZooKeeperServerMain {
      * @param tickTime         the tick time
      */
     public JMZookeeperServer(int port, String zookeeperDirPath, int tickTime) {
-        this(port, JMPath.getPath(zookeeperDirPath).toFile(),
+        this(port, JMPath.getInstance().getPath(zookeeperDirPath).toFile(),
                 tickTime);
     }
 
@@ -115,7 +115,7 @@ public class JMZookeeperServer extends ZooKeeperServerMain {
                 configuration.readFrom(quorumPeerConfig);
                 runFromConfig(configuration);
             } catch (Exception e) {
-                JMExceptionManager
+                JMException
                         .handleExceptionAndThrowRuntimeEx(log, e, "start",
                                 port);
             }
@@ -137,7 +137,7 @@ public class JMZookeeperServer extends ZooKeeperServerMain {
             zookeeperThreadService.shutdown();
             zookeeperThreadService.awaitTermination(10, TimeUnit.SECONDS);
         } catch (Exception e) {
-            JMExceptionManager.handleException(log, e, "stop",
+            JMException.handleException(log, e, "stop",
                     zookeeperThreadService.shutdownNow());
         }
         log.info("shutdown completely Over {} ms !!!",

@@ -3,9 +3,9 @@ package kr.jm.utils.kafka;
 import kafka.admin.RackAwareMode;
 import kafka.zk.AdminZkClient;
 import kafka.zk.KafkaZkClient;
-import kr.jm.utils.exception.JMExceptionManager;
+import kr.jm.utils.exception.JMException;
 import kr.jm.utils.helper.JMLog;
-import kr.jm.utils.helper.JMThread;
+import kr.jm.utils.JMThread;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.PartitionInfo;
@@ -50,20 +50,15 @@ public class JMKafkaAdmin {
     private KafkaZkClient getKafkaZkClient() {
         return KafkaZkClient
                 .apply(zookeeperConnect, isSecureKafkaCluster, sessionTimeoutMs, connectionTimeoutMs, 10, Time.SYSTEM,
-                        "jmKafkaGroup", "jmKafkaType", Option.empty());
+                        "jmKafkaGroup", "jmKafkaType", Option.empty(), Option.empty());
     }
 
     private <R> R operationFunction(Function<AdminZkClient, R> operationFunction, String methodName, Object... params) {
         JMLog.info(log, methodName, params);
-        KafkaZkClient kafkaZkClient = null;
-        try {
-            kafkaZkClient = getKafkaZkClient();
+        try (KafkaZkClient kafkaZkClient = getKafkaZkClient()) {
             return operationFunction.apply(new AdminZkClient(kafkaZkClient));
         } catch (Exception e) {
-            return JMExceptionManager.handleExceptionAndReturnNull(log, e, methodName, params);
-        } finally {
-            if (kafkaZkClient != null)
-                kafkaZkClient.close();
+            return JMException.handleExceptionAndReturnNull(log, e, methodName, params);
         }
     }
 
@@ -74,7 +69,7 @@ public class JMKafkaAdmin {
             operationConsumer.accept(new AdminZkClient(kafkaZkClient = getKafkaZkClient()));
             JMThread.sleep(1000);
         } catch (Exception e) {
-            JMExceptionManager.handleException(log, e, methodName, params);
+            JMException.handleException(log, e, methodName, params);
         } finally {
             if (kafkaZkClient != null)
                 kafkaZkClient.close();

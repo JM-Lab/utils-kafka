@@ -2,7 +2,7 @@ package kr.jm.utils.kafka.client;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import kr.jm.utils.exception.JMExceptionManager;
+import kr.jm.utils.exception.JMException;
 import kr.jm.utils.helper.JMLog;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -316,7 +316,7 @@ public class JMKafkaProducer extends KafkaProducer<String, String> {
             JMLog.debug(log, "sendSync", producerRecord);
             return Optional.of(send(producerRecord).get());
         } catch (Exception e) {
-            return JMExceptionManager.handleExceptionAndReturnEmptyOptional(log,
+            return JMException.handleExceptionAndReturnEmptyOptional(log,
                     e, "sendSync", producerRecord);
         }
     }
@@ -475,7 +475,7 @@ public class JMKafkaProducer extends KafkaProducer<String, String> {
         try {
             return objectMapper.writeValueAsString(object);
         } catch (Exception e) {
-            throw JMExceptionManager.handleExceptionAndReturnRuntimeEx(log, e,
+            throw JMException.handleExceptionAndReturnRuntimeEx(log, e,
                     "buildJsonString", object);
         }
     }
